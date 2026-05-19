@@ -34,7 +34,7 @@
   - supplementary extreme-tilt grid;
   - expanded local grid;
   - nested walk-forward validation;
-  - fixed pre-2022 parameter holdout;
+  - earliest feasible fixed-parameter holdout after a 252-trading-day calibration window;
   - score diagnostics;
   - annual results;
   - equity-curve figures.

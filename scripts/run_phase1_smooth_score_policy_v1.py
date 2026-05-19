@@ -32,6 +32,8 @@ PLOT_DIR = OUT_DIR / "plots"
 COMMON_OOS_START_DATE = "2016-12-21"
 TRANSACTION_COST_BPS = (0, 5, 10, 20)
 TRADING_DAYS = 252
+VALIDATION_INITIAL_TRAIN_WINDOW = 252
+VALIDATION_TEST_BLOCK = 63
 RAW_FEATURES = (
     "tnx_change_21d",
     "spy_drawdown",
@@ -1116,8 +1118,8 @@ def select_best_config_on_window(candidate_returns: pd.DataFrame, train_dates: p
 def build_walk_forward_strategy(
     candidate_returns: pd.DataFrame,
     scheme: str,
-    initial_train_window: int = 756,
-    test_block: int = 63,
+    initial_train_window: int = VALIDATION_INITIAL_TRAIN_WINDOW,
+    test_block: int = VALIDATION_TEST_BLOCK,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     data = candidate_returns[
         (candidate_returns["method"] == "supp_expanded_local_grid")
@@ -1211,24 +1213,33 @@ def summarize_validation_returns(
 def build_fixed_holdout_validation(
     supp_common_returns: pd.DataFrame,
     benchmark_common_returns: pd.DataFrame,
-    calibration_end: str = "2021-12-31",
-    holdout_start: str = "2022-01-03",
+    initial_train_window: int = VALIDATION_INITIAL_TRAIN_WINDOW,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
     candidates = supp_common_returns[
         (supp_common_returns["method"] == "supp_expanded_local_grid")
         & (supp_common_returns["cost_bps"] == 10)
     ].copy()
     candidates["date"] = pd.to_datetime(candidates["date"])
-    calibration_dates = pd.DatetimeIndex(sorted(candidates[candidates["date"] <= pd.Timestamp(calibration_end)]["date"].unique()))
+    candidate_dates = pd.DatetimeIndex(sorted(candidates["date"].dropna().unique()))
+    if len(candidate_dates) <= initial_train_window:
+        return pd.DataFrame(), pd.DataFrame(), {
+            "calibration_start": "",
+            "calibration_end": "",
+            "holdout_start": "",
+            "selected_config_id": "",
+            "initial_train_window": str(initial_train_window),
+        }
+    calibration_dates = candidate_dates[:initial_train_window]
+    holdout_start_ts = candidate_dates[initial_train_window]
     selected_config, calibration_metrics = select_best_config_on_window(candidates, calibration_dates)
     holdout = candidates[
         (candidates["config_id"] == selected_config)
-        & (candidates["date"] >= pd.Timestamp(holdout_start))
+        & (candidates["date"] >= holdout_start_ts)
     ].copy()
-    holdout["validation_method"] = "fixed_pre2022_selected_holdout"
-    bench_holdout = benchmark_common_returns[pd.to_datetime(benchmark_common_returns["date"]) >= pd.Timestamp(holdout_start)].copy()
+    holdout["validation_method"] = "fixed_earliest_window_holdout"
+    bench_holdout = benchmark_common_returns[pd.to_datetime(benchmark_common_returns["date"]) >= holdout_start_ts].copy()
     labels = {
-        "Fixed Parameter Holdout": "fixed_pre2022_selected_holdout",
+        "Fixed Parameter Earliest Holdout": "fixed_earliest_window_holdout",
         "50/50 G-D Holdout": "benchmark_50_50_gd",
         "100% G Holdout": "benchmark_100_g",
         "100% D Holdout": "benchmark_100_d",
@@ -1238,8 +1249,9 @@ def build_fixed_holdout_validation(
     meta = {
         "calibration_start": calibration_dates.min().date().isoformat() if len(calibration_dates) else "",
         "calibration_end": calibration_dates.max().date().isoformat() if len(calibration_dates) else "",
-        "holdout_start": holdout_start,
+        "holdout_start": holdout_start_ts.date().isoformat(),
         "selected_config_id": selected_config,
+        "initial_train_window": str(initial_train_window),
     }
     return holdout, summary, meta
 
@@ -1560,7 +1572,9 @@ def write_report(
         lines.append("")
     lines.append("## 6. Nested / Walk-Forward 与固定参数后验验证")
     lines.append("")
-    lines.append("这一节不再用全样本挑参数。Walk-forward 每次只用过去窗口选择 expanded local grid 里的参数，然后部署到未来 63 个交易日。固定参数验证则先用 2021 年底以前的数据选一个参数，再锁定到 2022 年以后。")
+    lines.append("这一节不再用全样本挑参数，也不使用 2021/2022 这类人为切点。Walk-forward 每次只用过去窗口选择 expanded local grid 里的参数，然后部署到未来 63 个交易日。固定参数验证使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始后验验证。")
+    lines.append(f"- 最小训练窗口：`{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日。")
+    lines.append(f"- Walk-forward 测试块：`{VALIDATION_TEST_BLOCK}` 个交易日。")
     lines.append("")
     lines.append("### 6.1 Nested Walk-Forward")
     lines.append("")
@@ -1605,7 +1619,8 @@ def write_report(
     if fixed_holdout_meta:
         lines.append(
             f"- 参数选择期：`{fixed_holdout_meta.get('calibration_start')}` 到 `{fixed_holdout_meta.get('calibration_end')}`；"
-            f"后验验证期从 `{fixed_holdout_meta.get('holdout_start')}` 开始。"
+            f"后验验证期从 `{fixed_holdout_meta.get('holdout_start')}` 开始；"
+            f"训练窗口 `{fixed_holdout_meta.get('initial_train_window')}` 个交易日。"
         )
         lines.append(f"- 固定参数配置：`{fixed_holdout_meta.get('selected_config_id')}`")
         lines.append("")
