@@ -34,6 +34,7 @@ G_SYMBOLS = ["QQQ", "XLK", "VGT", "SPYG", "VUG"]
 D_SYMBOLS = ["SCHD", "VYM", "VTV", "FDVV", "COWZ"]
 ALL_SYMBOLS = G_SYMBOLS + D_SYMBOLS + ["SPY"]
 HORIZONS = [21, 63, 126, 252]
+PRICE_FFILL_LIMIT = 3
 
 
 STATE_DEFINITIONS = [
@@ -166,6 +167,18 @@ def future_cum_return(series: pd.Series, horizon: int) -> pd.Series:
     return (1 + series).shift(-1).rolling(horizon).apply(np.prod, raw=True).shift(-(horizon - 1)) - 1
 
 
+def daily_returns_from_prices(prices: pd.DataFrame) -> pd.DataFrame:
+    """Convert prices to returns while repairing isolated provider-level gaps.
+
+    Some thin ETF histories contain one-off missing daily bars even after the
+    fund is live. Forward-filling close prices for at most a few trading days
+    prevents a single missing constituent from contaminating long rolling
+    signals, while still leaving pre-inception and longer data holes as missing.
+    """
+    repaired = prices.sort_index().ffill(limit=PRICE_FFILL_LIMIT)
+    return repaired.pct_change(fill_method=None)
+
+
 def rolling_percentile(series: pd.Series, window: int = 756, min_periods: int = 252) -> pd.Series:
     def percentile(values: np.ndarray) -> float:
         current = values[-1]
@@ -232,7 +245,7 @@ def state_growth(panel: pd.DataFrame) -> pd.Series:
 
 def build_panel() -> pd.DataFrame:
     prices = load_prices()
-    returns = prices[ALL_SYMBOLS].pct_change(fill_method=None)
+    returns = daily_returns_from_prices(prices[ALL_SYMBOLS])
     panel = returns.copy()
     panel["spy_close"] = prices["SPY"]
     panel["g_return"] = returns[G_SYMBOLS].where(returns[G_SYMBOLS].notna().all(axis=1)).mean(axis=1)

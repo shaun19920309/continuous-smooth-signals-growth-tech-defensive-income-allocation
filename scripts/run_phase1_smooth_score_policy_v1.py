@@ -1469,6 +1469,7 @@ def write_report(
     lines.append(f"- 可用于 63 日目标诊断的样本：`{valid_target['date'].min().date()}` 到 `{valid_target['date'].max().date()}`，n=`{len(valid_target)}`。")
     lines.append(f"- Smooth score 完整特征样本：`{smooth_feature_sample['date'].min().date()}` 到 `{smooth_feature_sample['date'].max().date()}`，n=`{len(smooth_feature_sample)}`。")
     lines.append(f"- 主策略比较从 G/D 最早共同可用日期开始：`{common_start.date()}` 到 `{common_end.date()}`。")
+    lines.append("- G/D 收益来自 state framework 输入面板；单 ETF 的孤立日线缺口已在价格层做最多 3 个交易日的 forward-fill 后再计算收益，避免一根缺失 K 线污染 63/126 日滚动变量。")
     lines.append("- 注意：`gd_trailing_126d` 需要 126 个交易日 warmup，因此动态 smooth score 的实际可交易起点会晚于 2016-12-21；这不是中途截样，而是变量定义带来的自然 warmup。")
     lines.append("- 信号在 t 日收盘后形成，t+1 日收益开始使用。")
     lines.append("- 标准化均为 expanding z-score，不使用全样本 z-score。")

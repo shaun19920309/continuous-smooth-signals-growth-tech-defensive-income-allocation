@@ -33,6 +33,7 @@ D_SYMBOLS = ["SCHD", "VYM", "VTV", "FDVV", "COWZ"]
 ALL_SYMBOLS = G_SYMBOLS + D_SYMBOLS
 FACTOR_COLUMNS = ["mkt_rf", "smb", "hml", "rmw", "cma", "mom"]
 ROLLING_WINDOWS = [252, 504]
+PRICE_FFILL_LIMIT = 3
 
 
 @dataclass
@@ -91,8 +92,14 @@ def load_factors() -> pd.DataFrame:
     return ff.sort_index()
 
 
+def daily_returns_from_prices(prices: pd.DataFrame) -> pd.DataFrame:
+    """Convert prices to returns while repairing isolated provider-level gaps."""
+    repaired = prices.sort_index().ffill(limit=PRICE_FFILL_LIMIT)
+    return repaired.pct_change(fill_method=None)
+
+
 def build_return_panel(prices: pd.DataFrame, factors: pd.DataFrame) -> pd.DataFrame:
-    returns = prices.pct_change(fill_method=None)
+    returns = daily_returns_from_prices(prices)
     g_complete = returns[G_SYMBOLS].notna().all(axis=1)
     d_complete = returns[D_SYMBOLS].notna().all(axis=1)
     panel = returns.join(factors, how="inner")
@@ -367,7 +374,7 @@ def write_report(
     lines.append("")
     lines.append(f"- G 篮子：`{', '.join(G_SYMBOLS)}`，固定等权。")
     lines.append(f"- D 篮子：`{', '.join(D_SYMBOLS)}`，固定等权。")
-    lines.append("- ETF 收益：Moomoo 日线 QFQ close 计算日收益。")
+    lines.append("- ETF 收益：Moomoo 日线 QFQ close 计算日收益；对单 ETF 的孤立数据缺口，先在价格层做最多 3 个交易日的 forward-fill，再计算收益，长缺口和上市前缺口不填补。")
     lines.append("- 因子：Kenneth French FF5 daily + Momentum，使用 decimal return。")
     lines.append("- G 和 D 使用超额收益 `R - Rf`；G-D 是零成本多空组合，risk-free leg 相互抵消，因此用 `R_G - R_D`。")
     lines.append(
