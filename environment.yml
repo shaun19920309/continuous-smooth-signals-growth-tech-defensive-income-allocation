@@ -1,0 +1,8 @@
+name: phase1-2016-full-archive
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.11
+  - numpy=2.2.6
+  - pandas=2.3.3
+  - matplotlib=3.10.9

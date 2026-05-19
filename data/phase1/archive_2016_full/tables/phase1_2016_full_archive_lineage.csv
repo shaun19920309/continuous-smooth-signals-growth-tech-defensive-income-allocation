@@ -1,0 +1,5 @@
+﻿step,script,output_report,sample_note,archive_status
+1_factor_attribution,scripts/run_phase1_factor_attribution.py,data/phase1/factor_attribution/reports/phase1_factor_attribution_report.md,FF5+MOM 回归样本从 2016-12-21 开始。,included
+2_smooth_score_policy_v1,scripts/run_phase1_state_framework_v2.py; scripts/run_phase1_smooth_score_policy_v1.py,data/phase1/smooth_score_policy_v1/reports/phase1_smooth_score_policy_v1_report.md,G/D 源收益从 2016-12-21 开始；包含 126 日 trailing warmup 后的完整 smooth score 结果。,included
+excluded_old_exploratory_routes,run_phase1_state_sorting.py; run_phase1_predictive_regression.py; run_phase1_oos_validation.py; run_phase1_state_action_policy.py,old exploratory reports,这些属于旧路线或中途实验结果，本归档按用户要求不纳入。,excluded
+excluded_elasticnet,N/A,N/A,ElasticNet 相关实验、表格与结论全部排除。,excluded
