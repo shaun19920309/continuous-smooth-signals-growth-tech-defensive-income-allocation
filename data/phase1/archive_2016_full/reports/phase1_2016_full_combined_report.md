@@ -32,12 +32,12 @@
 | display_name | start_date | end_date | n_days | final_wealth | CAGR | Ann Vol | Sharpe | Max DD | Turnover | Avg G |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Traditional Smooth Score | 2017-06-28 | 2026-05-15 | 2233 | 4.28 | 17.94% | 19.31% | 0.95 | -32.80% | 183.96% | 49.20% |
-| Smooth TNX-only | 2016-12-21 | 2026-05-15 | 2362 | 4.50 | 17.38% | 18.80% | 0.95 | -32.72% | 197.01% | 49.07% |
-| Smooth Core-only | 2016-12-21 | 2026-05-15 | 2362 | 4.47 | 17.29% | 18.68% | 0.95 | -32.99% | 138.50% | 45.50% |
-| 50/50 G-D Buy & Hold | 2016-12-21 | 2026-05-15 | 2362 | 4.42 | 17.15% | 18.88% | 0.93 | -33.59% | 0.00% | 50.00% |
-| 100% G Buy & Hold | 2016-12-21 | 2026-05-15 | 2362 | 6.32 | 21.72% | 22.97% | 0.97 | -34.35% | 0.00% | 100.00% |
-| 100% D Buy & Hold | 2016-12-21 | 2026-05-15 | 2362 | 2.94 | 12.15% | 17.12% | 0.76 | -36.71% | 0.00% | 0.00% |
-| SPY Buy & Hold | 2016-12-21 | 2026-05-15 | 2362 | 3.79 | 15.25% | 18.29% | 0.87 | -33.72% | 0.00% |  |
+| Smooth TNX-only | 2017-06-28 | 2026-05-15 | 2233 | 4.11 | 17.41% | 19.26% | 0.93 | -32.72% | 198.74% | 49.09% |
+| Smooth Core-only | 2017-06-28 | 2026-05-15 | 2233 | 4.11 | 17.40% | 19.13% | 0.93 | -32.99% | 141.47% | 45.78% |
+| 50/50 G-D Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 4.02 | 17.12% | 19.34% | 0.91 | -33.59% | 0.00% | 50.00% |
+| 100% G Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 5.49 | 21.34% | 23.53% | 0.94 | -34.35% | 0.00% | 100.00% |
+| 100% D Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 2.80 | 12.42% | 17.53% | 0.76 | -36.71% | 0.00% | 0.00% |
+| SPY Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 3.49 | 15.25% | 18.74% | 0.85 | -33.72% | 0.00% |  |
 
 ## 4. 合并报告正文
 
@@ -195,17 +195,17 @@
 
 ##### 4. 入选方法与 Buy-and-Hold 对齐统计
 
-这一张表只保留每类方法的入选配置，并把 `100% G`、`100% D`、`50/50 G-D`、`SPY` 的 buy-and-hold 统计结果放在同一个 2016 起点全可用窗口下展示。动态策略因特征 warmup 可能自然晚于买入持有基准。
+这一张表只保留每类方法的入选配置，并把 `100% G`、`100% D`、`50/50 G-D`、`SPY` 的 buy-and-hold 统计结果对齐到同图共同可用起点后展示。这样动态策略和静态基准在同一张对比图、同一张统计表中的开始交易时间完全一致。
 
 | display_name | config_id | start_date | end_date | n_days | final_wealth | cagr | ann_vol | sharpe | sortino | max_drawdown | calmar | annual_turnover | avg_g_weight |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Traditional Smooth Score | trad_a0.50_ls0.25_lc0.05_tilt0.20_tau1.0_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.28 | 17.94% | 19.31% | 0.95 | 1.14 | -32.80% | 0.55 | 183.96% | 49.20% |
-| Smooth TNX-only | tnx_tilt0.20_tau1.0_eta0.05 | 2016-12-21 | 2026-05-15 | 2362 | 4.50 | 17.38% | 18.80% | 0.95 | 1.12 | -32.72% | 0.53 | 197.01% | 49.07% |
-| Smooth Core-only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2016-12-21 | 2026-05-15 | 2362 | 4.47 | 17.29% | 18.68% | 0.95 | 1.12 | -32.99% | 0.52 | 138.50% | 45.50% |
-| 50/50 G-D Buy & Hold | benchmark_50_50_gd | 2016-12-21 | 2026-05-15 | 2362 | 4.42 | 17.15% | 18.88% | 0.93 | 1.10 | -33.59% | 0.51 | 0.00% | 50.00% |
-| 100% G Buy & Hold | benchmark_100_g | 2016-12-21 | 2026-05-15 | 2362 | 6.32 | 21.72% | 22.97% | 0.97 | 1.20 | -34.35% | 0.63 | 0.00% | 100.00% |
-| 100% D Buy & Hold | benchmark_100_d | 2016-12-21 | 2026-05-15 | 2362 | 2.94 | 12.15% | 17.12% | 0.76 | 0.86 | -36.71% | 0.33 | 0.00% | 0.00% |
-| SPY Buy & Hold | benchmark_spy | 2016-12-21 | 2026-05-15 | 2362 | 3.79 | 15.25% | 18.29% | 0.87 | 1.00 | -33.72% | 0.45 | 0.00% |  |
+| Smooth TNX-only | tnx_tilt0.20_tau1.0_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.11 | 17.41% | 19.26% | 0.93 | 1.11 | -32.72% | 0.53 | 198.74% | 49.09% |
+| Smooth Core-only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.11 | 17.40% | 19.13% | 0.93 | 1.11 | -32.99% | 0.53 | 141.47% | 45.78% |
+| 50/50 G-D Buy & Hold | benchmark_50_50_gd | 2017-06-28 | 2026-05-15 | 2233 | 4.02 | 17.12% | 19.34% | 0.91 | 1.08 | -33.59% | 0.51 | 0.00% | 50.00% |
+| 100% G Buy & Hold | benchmark_100_g | 2017-06-28 | 2026-05-15 | 2233 | 5.49 | 21.34% | 23.53% | 0.94 | 1.17 | -34.35% | 0.62 | 0.00% | 100.00% |
+| 100% D Buy & Hold | benchmark_100_d | 2017-06-28 | 2026-05-15 | 2233 | 2.80 | 12.42% | 17.53% | 0.76 | 0.86 | -36.71% | 0.34 | 0.00% | 0.00% |
+| SPY Buy & Hold | benchmark_spy | 2017-06-28 | 2026-05-15 | 2233 | 3.49 | 15.25% | 18.74% | 0.85 | 0.98 | -33.72% | 0.45 | 0.00% |  |
 
 ##### 5. Vol-Matched 与静态 G/D 对照
 
@@ -350,26 +350,25 @@
 
 | method | config_id | Q1 | Q2 | Q3 | Q4 | Q5 | Q5_minus_Q1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.05% | 1.06% | 2.17% | 2.49% | 3.87% | 3.83% |
 | traditional_smooth_score | trad_a0.50_ls0.25_lc0.05_tilt0.20_tau1.0_eta0.05 | -0.68% | -0.00% | 0.93% | 3.49% | 5.24% | 5.92% |
-| smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 0.17% | 0.18% | 1.27% | 2.45% | 5.56% | 5.39% |
+| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
+| smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
 
 ##### 11. 资金曲线对比
 
-下面两张图都基于 2016 起点全可用窗口和 `10bp` 成本，资金曲线统一 rebase 到 `1.0`。
+下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。
 
-![2016 起点全可用窗口所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
+![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
 
 ![G/D Buy and Hold 基础资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png)
 
 图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。
 
-##### 12. 2016 起点全可用窗口年度表现，10bp 成本
+##### 12. 共同起点年度表现，10bp 成本
 
 | method | config_id | year | cagr | sharpe | max_drawdown | annual_turnover | avg_g_weight |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| benchmark_100_d | benchmark_100_d | 2016 | -37.11% | -8.46 | -1.08% | 0.00% | 0.00% |
-| benchmark_100_d | benchmark_100_d | 2017 | 17.67% | 2.49 | -3.03% | 0.00% | 0.00% |
+| benchmark_100_d | benchmark_100_d | 2017 | 24.39% | 3.47 | -2.35% | 0.00% | 0.00% |
 | benchmark_100_d | benchmark_100_d | 2018 | -5.67% | -0.31 | -17.54% | 0.00% | 0.00% |
 | benchmark_100_d | benchmark_100_d | 2019 | 25.08% | 1.94 | -7.88% | 0.00% | 0.00% |
 | benchmark_100_d | benchmark_100_d | 2020 | 6.60% | 0.36 | -36.71% | 0.00% | 0.00% |
@@ -379,8 +378,7 @@
 | benchmark_100_d | benchmark_100_d | 2024 | 15.55% | 1.41 | -6.99% | 0.00% | 0.00% |
 | benchmark_100_d | benchmark_100_d | 2025 | 12.31% | 0.83 | -15.16% | 0.00% | 0.00% |
 | benchmark_100_d | benchmark_100_d | 2026 | 26.09% | 2.33 | -5.89% | 0.00% | 0.00% |
-| benchmark_100_g | benchmark_100_g | 2016 | -43.22% | -8.15 | -1.60% | 0.00% | 100.00% |
-| benchmark_100_g | benchmark_100_g | 2017 | 31.95% | 3.10 | -3.87% | 0.00% | 100.00% |
+| benchmark_100_g | benchmark_100_g | 2017 | 29.53% | 2.73 | -2.40% | 0.00% | 100.00% |
 | benchmark_100_g | benchmark_100_g | 2018 | -0.60% | 0.08 | -22.54% | 0.00% | 100.00% |
 | benchmark_100_g | benchmark_100_g | 2019 | 41.00% | 2.27 | -9.27% | 0.00% | 100.00% |
 | benchmark_100_g | benchmark_100_g | 2020 | 42.24% | 1.14 | -30.81% | 0.00% | 100.00% |
@@ -390,8 +388,7 @@
 | benchmark_100_g | benchmark_100_g | 2024 | 29.06% | 1.43 | -14.22% | 0.00% | 100.00% |
 | benchmark_100_g | benchmark_100_g | 2025 | 22.00% | 0.92 | -24.06% | 0.00% | 100.00% |
 | benchmark_100_g | benchmark_100_g | 2026 | 48.22% | 2.03 | -13.46% | 0.00% | 100.00% |
-| benchmark_50_50_gd | benchmark_50_50_gd | 2016 | -40.24% | -8.40 | -1.34% | 0.00% | 50.00% |
-| benchmark_50_50_gd | benchmark_50_50_gd | 2017 | 24.68% | 3.11 | -2.22% | 0.00% | 50.00% |
+| benchmark_50_50_gd | benchmark_50_50_gd | 2017 | 27.03% | 3.35 | -2.08% | 0.00% | 50.00% |
 | benchmark_50_50_gd | benchmark_50_50_gd | 2018 | -3.03% | -0.08 | -19.71% | 0.00% | 50.00% |
 | benchmark_50_50_gd | benchmark_50_50_gd | 2019 | 32.90% | 2.19 | -8.03% | 0.00% | 50.00% |
 | benchmark_50_50_gd | benchmark_50_50_gd | 2020 | 23.71% | 0.79 | -33.59% | 0.00% | 50.00% |
@@ -401,8 +398,7 @@
 | benchmark_50_50_gd | benchmark_50_50_gd | 2024 | 22.51% | 1.60 | -8.88% | 0.00% | 50.00% |
 | benchmark_50_50_gd | benchmark_50_50_gd | 2025 | 17.46% | 0.94 | -19.66% | 0.00% | 50.00% |
 | benchmark_50_50_gd | benchmark_50_50_gd | 2026 | 37.22% | 2.39 | -7.95% | 0.00% | 50.00% |
-| benchmark_spy | benchmark_spy | 2016 | -36.73% | -9.45 | -1.18% | 0.00% |  |
-| benchmark_spy | benchmark_spy | 2017 | 21.81% | 3.01 | -2.57% | 0.00% |  |
+| benchmark_spy | benchmark_spy | 2017 | 24.08% | 3.38 | -2.07% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2018 | -4.59% | -0.19 | -19.35% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2019 | 31.22% | 2.24 | -6.62% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2020 | 18.25% | 0.67 | -33.72% | 0.00% |  |
@@ -412,8 +408,7 @@
 | benchmark_spy | benchmark_spy | 2024 | 24.89% | 1.84 | -8.41% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2025 | 17.87% | 0.94 | -18.76% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2026 | 25.50% | 1.72 | -8.88% | 0.00% |  |
-| smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2016 | -39.27% | -8.46 | -1.25% | 35.34% | 33.49% |
-| smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2017 | 23.02% | 3.00 | -2.14% | 85.30% | 40.79% |
+| smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2017 | 26.19% | 3.40 | -2.13% | 80.79% | 40.65% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2018 | -3.61% | -0.12 | -19.32% | 111.71% | 42.52% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2019 | 32.28% | 2.15 | -8.00% | 154.35% | 48.73% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2020 | 24.44% | 0.81 | -32.99% | 128.98% | 48.70% |
@@ -423,8 +418,7 @@
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2024 | 21.69% | 1.57 | -8.73% | 163.65% | 45.65% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2025 | 18.01% | 0.96 | -19.58% | 130.66% | 47.22% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 2026 | 35.75% | 2.43 | -7.63% | 111.46% | 43.42% |
-| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2016 | -39.35% | -8.47 | -1.26% | 58.18% | 34.27% |
-| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2017 | 23.78% | 3.00 | -2.40% | 171.04% | 49.04% |
+| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2017 | 26.17% | 3.27 | -2.09% | 168.89% | 48.51% |
 | smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2018 | -3.57% | -0.12 | -19.51% | 181.31% | 46.56% |
 | smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2019 | 33.21% | 2.17 | -8.20% | 189.59% | 55.11% |
 | smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 2020 | 25.63% | 0.83 | -32.72% | 156.96% | 51.42% |
@@ -456,10 +450,10 @@
 - 增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_comparisons.csv`
 - 2016 起点增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_comparisons.csv`
 - 年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_yearly_metrics.csv`
-- 2016 起点年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_yearly_metrics.csv`
+- 共同起点年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_yearly_metrics.csv`
 - score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_score_diagnostics.csv`
 - 2016 起点 score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_score_diagnostics.csv`
-- 2016 起点资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv`
+- 共同起点资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv`
 - 补充 extreme/local tilt 配置：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_config_grid.csv`
 - 补充 extreme/local tilt 主表：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_summary.csv`
 - 补充 extreme/local tilt 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_returns.csv`

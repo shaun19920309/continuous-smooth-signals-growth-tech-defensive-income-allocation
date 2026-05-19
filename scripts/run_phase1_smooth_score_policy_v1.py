@@ -463,10 +463,19 @@ def add_selection_scores(metrics: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def yearly_metrics(strategy_returns: pd.DataFrame, selected_keys: set[tuple[str, str]]) -> pd.DataFrame:
+def yearly_metrics(
+    strategy_returns: pd.DataFrame,
+    selected_keys: set[tuple[str, str]],
+    start_date: pd.Timestamp | None = None,
+    end_date: pd.Timestamp | None = None,
+) -> pd.DataFrame:
     data = strategy_returns[strategy_returns["cost_bps"] == 10].copy()
     data = data[data.apply(lambda r: (r["method"], r["config_id"]) in selected_keys, axis=1)]
     data["date"] = pd.to_datetime(data["date"])
+    if start_date is not None:
+        data = data[data["date"] >= pd.to_datetime(start_date)]
+    if end_date is not None:
+        data = data[data["date"] <= pd.to_datetime(end_date)]
     data["year"] = data["date"].dt.year
     rows = []
     for (method, config_id, year), group in data.groupby(["method", "config_id", "year"], sort=True):
@@ -604,11 +613,31 @@ def build_equity_curves(
     out = curves[0]
     for curve in curves[1:]:
         out = out.merge(curve, on="date", how="outer")
-    return out.sort_values("date").reset_index(drop=True)
+    return align_and_rebase_equity(out)
+
+
+def align_and_rebase_equity(equity: pd.DataFrame) -> pd.DataFrame:
+    """Align all plotted curves to their common valid window and rebase to 1."""
+    if equity.empty:
+        return equity
+    out = equity.copy()
+    out["date"] = pd.to_datetime(out["date"])
+    out = out.sort_values("date").reset_index(drop=True)
+    cols = [c for c in out.columns if c != "date"]
+    if not cols:
+        return out
+    out = out.dropna(subset=cols, how="any").reset_index(drop=True)
+    if out.empty:
+        return out
+    for col in cols:
+        base = out[col].iloc[0]
+        if pd.notna(base) and base != 0:
+            out[col] = out[col] / base
+    return out
 
 
 def selected_method_summary(
-    metrics: pd.DataFrame,
+    strategy_returns: pd.DataFrame,
     equity: pd.DataFrame,
     selected: dict[str, tuple[str, str]],
     cost_bps: int = 10,
@@ -632,16 +661,28 @@ def selected_method_summary(
         "benchmark_spy",
     ]
     rows = []
+    start = pd.to_datetime(equity["date"]).min() if not equity.empty else None
+    end = pd.to_datetime(equity["date"]).max() if not equity.empty else None
     for key in order:
         method, config_id = selected[key]
-        row_df = metrics[
-            (metrics["method"] == method)
-            & (metrics["config_id"] == config_id)
-            & (metrics["cost_bps"] == cost_bps)
+        group = strategy_returns[
+            (strategy_returns["method"] == method)
+            & (strategy_returns["config_id"] == config_id)
+            & (strategy_returns["cost_bps"] == cost_bps)
         ].copy()
-        if row_df.empty:
+        if group.empty:
             continue
-        row = row_df.iloc[0].to_dict()
+        group["date"] = pd.to_datetime(group["date"])
+        if start is not None:
+            group = group[group["date"] >= start]
+        if end is not None:
+            group = group[group["date"] <= end]
+        group = group.sort_values("date")
+        ret = pd.Series(group["net_return"].to_numpy(), index=group["date"])
+        turnover = pd.Series(group["daily_turnover"].to_numpy(), index=group["date"])
+        weights = pd.Series(group["g_weight"].to_numpy(), index=group["date"])
+        row = {"method": method, "config_id": config_id, "cost_bps": cost_bps}
+        row.update(performance_metrics(ret, turnover=turnover, weights=weights))
         row["display_name"] = labels[key]
         if labels[key] in equity.columns:
             row["final_wealth"] = float(equity[labels[key]].dropna().iloc[-1])
@@ -879,7 +920,7 @@ def build_vol_matched_static_comparison(
         "target_max_drawdown": f"{target_mdd:.6f}",
         "vol_matched_g_scale": f"{vol_scale:.6f}",
     }
-    return comparison, static_grid, curves, meta
+    return comparison, static_grid, align_and_rebase_equity(curves), meta
 
 
 def plot_equity_curves(equity: pd.DataFrame) -> dict[str, Path]:
@@ -991,7 +1032,7 @@ def build_supplementary_equity_curves(
     out = curves[0]
     for curve in curves[1:]:
         out = out.merge(curve, on="date", how="outer")
-    return out.sort_values("date").reset_index(drop=True), {"best_local_id": best_local_id}
+    return align_and_rebase_equity(out), {"best_local_id": best_local_id}
 
 
 def plot_supplementary_equity_curves(equity: pd.DataFrame) -> dict[str, Path]:
@@ -1321,7 +1362,7 @@ def build_validation_equity_curves(
         wf_equity = wf_curves[0]
         for curve in wf_curves[1:]:
             wf_equity = wf_equity.merge(curve, on="date", how="outer")
-        wf_equity = wf_equity.sort_values("date").reset_index(drop=True)
+        wf_equity = align_and_rebase_equity(wf_equity)
     else:
         wf_equity = pd.DataFrame()
 
@@ -1345,7 +1386,7 @@ def build_validation_equity_curves(
         holdout_equity = holdout_curves[0]
         for curve in holdout_curves[1:]:
             holdout_equity = holdout_equity.merge(curve, on="date", how="outer")
-        holdout_equity = holdout_equity.sort_values("date").reset_index(drop=True)
+        holdout_equity = align_and_rebase_equity(holdout_equity)
     else:
         holdout_equity = pd.DataFrame()
     return wf_equity, holdout_equity
@@ -1501,7 +1542,7 @@ def write_report(
     lines.append("")
     lines.append("## 4. 入选方法与 Buy-and-Hold 对齐统计")
     lines.append("")
-    lines.append("这一张表只保留每类方法的入选配置，并把 `100% G`、`100% D`、`50/50 G-D`、`SPY` 的 buy-and-hold 统计结果放在同一个 2016 起点全可用窗口下展示。动态策略因特征 warmup 可能自然晚于买入持有基准。")
+    lines.append("这一张表只保留每类方法的入选配置，并把 `100% G`、`100% D`、`50/50 G-D`、`SPY` 的 buy-and-hold 统计结果对齐到同图共同可用起点后展示。这样动态策略和静态基准在同一张对比图、同一张统计表中的开始交易时间完全一致。")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1830,17 +1871,17 @@ def write_report(
     lines.append("")
     lines.append("## 11. 资金曲线对比")
     lines.append("")
-    lines.append("下面两张图都基于 2016 起点全可用窗口和 `10bp` 成本，资金曲线统一 rebase 到 `1.0`。")
+    lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。")
     lines.append("")
     if plot_paths.get("all_methods"):
-        lines.append(f"![2016 起点全可用窗口所有方法资金曲线]({plot_paths['all_methods']})")
+        lines.append(f"![共同起点所有方法资金曲线]({plot_paths['all_methods']})")
         lines.append("")
     if plot_paths.get("buy_hold_gd"):
         lines.append(f"![G/D Buy and Hold 基础资金曲线]({plot_paths['buy_hold_gd']})")
         lines.append("")
     lines.append("图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。")
     lines.append("")
-    lines.append("## 12. 2016 起点全可用窗口年度表现，10bp 成本")
+    lines.append("## 12. 共同起点年度表现，10bp 成本")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1863,10 +1904,10 @@ def write_report(
     lines.append(f"- 增量比较：`{TABLE_DIR / 'smooth_score_policy_v1_comparisons.csv'}`")
     lines.append(f"- 2016 起点增量比较：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_comparisons.csv'}`")
     lines.append(f"- 年度表现：`{TABLE_DIR / 'smooth_score_policy_v1_yearly_metrics.csv'}`")
-    lines.append(f"- 2016 起点年度表现：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_yearly_metrics.csv'}`")
+    lines.append(f"- 共同起点年度表现：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_yearly_metrics.csv'}`")
     lines.append(f"- score 诊断：`{TABLE_DIR / 'smooth_score_policy_v1_score_diagnostics.csv'}`")
     lines.append(f"- 2016 起点 score 诊断：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_score_diagnostics.csv'}`")
-    lines.append(f"- 2016 起点资金曲线：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_equity_curves.csv'}`")
+    lines.append(f"- 共同起点资金曲线：`{TABLE_DIR / 'smooth_score_policy_v1_common_oos_equity_curves.csv'}`")
     lines.append(f"- 补充 extreme/local tilt 配置：`{TABLE_DIR / 'smooth_score_policy_v1_supplementary_tilt_config_grid.csv'}`")
     lines.append(f"- 补充 extreme/local tilt 主表：`{TABLE_DIR / 'smooth_score_policy_v1_supplementary_tilt_common_oos_summary.csv'}`")
     lines.append(f"- 补充 extreme/local tilt 日收益：`{TABLE_DIR / 'smooth_score_policy_v1_supplementary_tilt_common_oos_returns.csv'}`")
@@ -1948,17 +1989,19 @@ def main() -> None:
             comparisons.append(row)
     comparisons_df = pd.DataFrame(comparisons)
 
+    equity_curves = build_equity_curves(common_returns, selected, cost_bps=10)
+    equity_start = pd.to_datetime(equity_curves["date"]).min() if not equity_curves.empty else common_start
+    equity_end = pd.to_datetime(equity_curves["date"]).max() if not equity_curves.empty else pd.to_datetime(common_returns["date"]).max()
     selected_keys = set(selected.values())
-    yearly = yearly_metrics(common_returns, selected_keys)
+    yearly = yearly_metrics(common_returns, selected_keys, start_date=equity_start, end_date=equity_end)
     score_diag = score_diagnostics(
         features,
         signals,
         {selected["traditional_smooth_score"], selected["smooth_tnx_only"], selected["smooth_core_only"]},
-        start_date=common_start,
+        start_date=equity_start,
     )
-    equity_curves = build_equity_curves(common_returns, selected, cost_bps=10)
     plot_paths = plot_equity_curves(equity_curves)
-    selected_summary = selected_method_summary(common_metrics, equity_curves, selected, cost_bps=10)
+    selected_summary = selected_method_summary(common_returns, equity_curves, selected, cost_bps=10)
     supp_equity_curves, supp_equity_meta = build_supplementary_equity_curves(
         supp_common_returns,
         benchmark_common_returns,
