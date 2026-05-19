@@ -576,6 +576,8 @@ def build_equity_curves(
     cost_bps: int = 10,
 ) -> pd.DataFrame:
     labels = {
+        "best_local_grid": "Best Local Grid (tilt 50%)",
+        "extreme_50_tilt": "Extreme 50% Tilt",
         "traditional_smooth_score": "Traditional Smooth Score",
         "smooth_tnx_only": "Smooth TNX-only",
         "smooth_core_only": "Smooth Core-only",
@@ -585,15 +587,7 @@ def build_equity_curves(
         "benchmark_spy": "SPY Buy & Hold",
     }
     curves: list[pd.DataFrame] = []
-    for key in [
-        "traditional_smooth_score",
-        "smooth_tnx_only",
-        "smooth_core_only",
-        "benchmark_50_50_gd",
-        "benchmark_100_g",
-        "benchmark_100_d",
-        "benchmark_spy",
-    ]:
+    for key in selected:
         method, config_id = selected[key]
         group = strategy_returns[
             (strategy_returns["method"] == method)
@@ -643,6 +637,8 @@ def selected_method_summary(
     cost_bps: int = 10,
 ) -> pd.DataFrame:
     labels = {
+        "best_local_grid": "Best Local Grid (tilt 50%)",
+        "extreme_50_tilt": "Extreme 50% Tilt",
         "traditional_smooth_score": "Traditional Smooth Score",
         "smooth_tnx_only": "Smooth TNX-only",
         "smooth_core_only": "Smooth Core-only",
@@ -651,15 +647,7 @@ def selected_method_summary(
         "benchmark_100_d": "100% D Buy & Hold",
         "benchmark_spy": "SPY Buy & Hold",
     }
-    order = [
-        "traditional_smooth_score",
-        "smooth_tnx_only",
-        "smooth_core_only",
-        "benchmark_50_50_gd",
-        "benchmark_100_g",
-        "benchmark_100_d",
-        "benchmark_spy",
-    ]
+    order = list(selected)
     rows = []
     start = pd.to_datetime(equity["date"]).min() if not equity.empty else None
     end = pd.to_datetime(equity["date"]).max() if not equity.empty else None
@@ -1542,32 +1530,182 @@ def write_report(
     lines.append("- 本版报告只保留规则型 smooth score、补充 tilt 网格和 buy-and-hold 基准。")
     lines.append("- 交易成本报告 `0bp`、`5bp`、`10bp`、`20bp`；成本按 `2 × |ΔG权重| × cost_bps / 10000` 扣除。")
     lines.append("")
-    lines.append("## 3. 2016 起点全可用窗口主结果，10bp 成本后")
+    lines.append("## 3. 第一轮：max_tilt 规格测试")
     lines.append("")
+    lines.append("第一轮固定 `alpha=0.50, lambda_stress=0.25, lambda_crowded=0.15, tau_weight=1.0, eta=0.05`，只测试 `max_tilt` 与交易成本。这里的 `max_tilt` 是 tanh 平滑映射的最大主动倾斜幅度。")
+    lines.append("")
+    extreme_view = supp_summary[supp_summary["method"] == "supp_extreme_tilt_base"].sort_values(["cost_bps", "max_tilt"]).copy()
     lines.extend(
         markdown_table(
-            key_metrics,
+            extreme_view,
             [
-                "method",
-                "config_id",
+                "cost_bps",
+                "max_tilt",
+                "final_wealth",
                 "cagr",
-                "ann_vol",
                 "sharpe",
-                "sortino",
                 "max_drawdown",
                 "calmar",
                 "annual_turnover",
                 "avg_g_weight",
-                "selection_score",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
             ],
-            pct_cols={"cagr", "ann_vol", "max_drawdown", "annual_turnover", "avg_g_weight", "selection_score"},
-            num_cols={"sharpe", "sortino", "calmar"},
+            pct_cols={
+                "max_tilt",
+                "cagr",
+                "max_drawdown",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
+            },
+            num_cols={"final_wealth", "sharpe", "calmar"},
         )
     )
     lines.append("")
-    lines.append("## 4. 入选方法与 Buy-and-Hold 对齐统计")
+    extreme_10 = extreme_view[extreme_view["cost_bps"] == 10].sort_values("selection_score", ascending=False)
+    if not extreme_10.empty:
+        best_extreme = extreme_10.iloc[0]
+        lines.append(
+            f"- 10bp 主口径下，固定结构里的最佳 `max_tilt` 是 `{best_extreme['max_tilt']:.0%}`；"
+            f"CAGR `{best_extreme['cagr']:.2%}`，Sharpe `{best_extreme['sharpe']:.2f}`，Max DD `{best_extreme['max_drawdown']:.2%}`。"
+        )
+    lines.append("- 因此后续主策略比较不再沿用原始 20% tilt 的 `Traditional Smooth Score`，而是转向 50% tilt 体系。")
     lines.append("")
-    lines.append("这一张表只保留每类方法的入选配置，并把 `100% G`、`100% D`、`50/50 G-D`、`SPY` 的 buy-and-hold 统计结果对齐到同图共同可用起点后展示。这样动态策略和静态基准在同一张对比图、同一张统计表中的开始交易时间完全一致。")
+    if supp_plot_paths.get("extreme_tilt"):
+        append_figure_with_span(
+            lines,
+            "Supplementary Extreme Tilt 资金曲线",
+            supp_plot_paths["extreme_tilt"],
+            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+        )
+    lines.append("## 4. 第二轮：Expanded Local Grid")
+    lines.append("")
+    lines.append("第二轮按你的扩展网格运行：`alpha ∈ {0.50,0.67}`、`lambda_stress ∈ {0.25,0.50}`、`lambda_crowded ∈ {0.05,0.15,0.25}`、`max_tilt ∈ {20%,30%,40%,50%}`、`tau_weight ∈ {0.75,1.0,1.5}`、`eta ∈ {0.03,0.05,0.10}`。主结论看 10bp，20bp 作为压力测试。")
+    lines.append("")
+    local_10 = (
+        supp_summary[(supp_summary["method"] == "supp_expanded_local_grid") & (supp_summary["cost_bps"] == 10)]
+        .sort_values("selection_score", ascending=False)
+        .head(10)
+    )
+    best_local_id = str(local_10.iloc[0]["config_id"]) if not local_10.empty else ""
+    lines.append("### 4.1 10bp 主口径 Top 10")
+    lines.append("")
+    lines.extend(
+        markdown_table(
+            local_10,
+            [
+                "config_id",
+                "final_wealth",
+                "cagr",
+                "sharpe",
+                "max_drawdown",
+                "calmar",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
+                "selection_score",
+            ],
+            pct_cols={
+                "cagr",
+                "max_drawdown",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
+                "selection_score",
+            },
+            num_cols={"final_wealth", "sharpe", "calmar"},
+        )
+    )
+    lines.append("")
+    local_20 = (
+        supp_summary[(supp_summary["method"] == "supp_expanded_local_grid") & (supp_summary["cost_bps"] == 20)]
+        .sort_values(["sharpe", "calmar", "cagr"], ascending=False)
+        .head(10)
+    )
+    lines.append("### 4.2 20bp 压力测试 Top 10")
+    lines.append("")
+    lines.extend(
+        markdown_table(
+            local_20,
+            [
+                "config_id",
+                "final_wealth",
+                "cagr",
+                "sharpe",
+                "max_drawdown",
+                "calmar",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
+            ],
+            pct_cols={
+                "cagr",
+                "max_drawdown",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_50_50",
+                "ann_excess_vs_100_g",
+                "max_dd_diff_vs_100_g",
+            },
+            num_cols={"final_wealth", "sharpe", "calmar"},
+        )
+    )
+    lines.append("")
+    if not local_10.empty:
+        sensitivity = supplement_cost_sensitivity(supp_summary, best_local_id)
+        lines.append(f"### 4.3 10bp 入选局部网格配置的成本敏感性：`{best_local_id}`")
+        lines.append("")
+        lines.extend(
+            markdown_table(
+                sensitivity,
+                [
+                    "cost_bps",
+                    "final_wealth",
+                    "cagr",
+                    "sharpe",
+                    "max_drawdown",
+                    "calmar",
+                    "annual_turnover",
+                    "ann_excess_vs_50_50",
+                    "ann_excess_vs_100_g",
+                ],
+                pct_cols={
+                    "cagr",
+                    "max_drawdown",
+                    "annual_turnover",
+                    "ann_excess_vs_50_50",
+                    "ann_excess_vs_100_g",
+                },
+                num_cols={"final_wealth", "sharpe", "calmar"},
+            )
+        )
+        lines.append("")
+    lines.append("### 4.4 局部最佳方案资金曲线")
+    lines.append("")
+    if best_local_id:
+        lines.append(f"- 后续主策略配置：`{best_local_id}`。")
+        lines.append("- 这个配置来自 expanded local grid，且 `max_tilt=50%`。后续所有主对比、vol-matched、静态 G/D 对照都以它作为目标 smooth score。")
+    lines.append("")
+    if supp_plot_paths.get("best_local"):
+        append_figure_with_span(
+            lines,
+            "Supplementary Best Local Grid 资金曲线",
+            supp_plot_paths["best_local"],
+            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+        )
+    lines.append("## 5. 以 50% tilt 最佳方案为主策略的对齐统计")
+    lines.append("")
+    lines.append("这一张表从这里开始统一主口径：`Best Local Grid (tilt 50%)` 是后续主策略，`Extreme 50% Tilt` 是固定结构下的 50% tilt 对照，静态 buy-and-hold 作为基础基准。所有方法先对齐到同一可用日期区间。")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1593,9 +1731,40 @@ def write_report(
         )
     )
     lines.append("")
-    lines.append("## 5. Vol-Matched 与静态 G/D 对照")
+    lines.append("## 6. 以 50% tilt 最佳方案为主策略的增量比较，10bp 成本")
     lines.append("")
-    lines.append("这一节以补充网格中 10bp 主口径的最佳 local smooth score 为目标策略，比较同风险水平下的 `100% G` 缩放版本、等波动/等回撤静态 G-D、以及最优静态 G-D。")
+    lines.extend(
+        markdown_table(
+            comparisons,
+            ["comparison", "annualized_excess_return", "tracking_error", "information_ratio", "max_dd_diff", "turnover_diff"],
+            pct_cols={"annualized_excess_return", "tracking_error", "max_dd_diff", "turnover_diff"},
+            num_cols={"information_ratio"},
+        )
+    )
+    lines.append("")
+    lines.append("## 7. 资金曲线对比")
+    lines.append("")
+    lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。主策略为 `Best Local Grid (tilt 50%)`。")
+    lines.append("")
+    if plot_paths.get("all_methods"):
+        append_figure_with_span(
+            lines,
+            "共同起点所有方法资金曲线",
+            plot_paths["all_methods"],
+            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
+        )
+    if plot_paths.get("buy_hold_gd"):
+        append_figure_with_span(
+            lines,
+            "G/D Buy and Hold 基础资金曲线",
+            plot_paths["buy_hold_gd"],
+            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
+        )
+    lines.append("图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。")
+    lines.append("")
+    lines.append("## 8. Vol-Matched 与静态 G/D 对照")
+    lines.append("")
+    lines.append("这一节以 10bp 主口径的 `Best Local Grid (tilt 50%)` 为目标策略，比较同风险水平下的 `100% G` 缩放版本、等波动/等回撤静态 G-D、以及最优静态 G-D。")
     if vol_static_meta.get("best_local_config_id"):
         lines.append(f"- 目标 Smooth Score 配置：`{vol_static_meta['best_local_config_id']}`")
     if vol_static_meta.get("vol_matched_g_scale"):
@@ -1641,13 +1810,13 @@ def write_report(
             vol_static_plot_paths["vol_matched_static"],
             TABLE_DIR / "smooth_score_policy_v1_vol_matched_static_equity_curves.csv",
         )
-    lines.append("## 6. Nested / Walk-Forward 与固定参数后验验证")
+    lines.append("## 9. Nested / Walk-Forward 与固定参数后验验证")
     lines.append("")
-    lines.append("这一节不再用全样本挑参数，也不使用 2021/2022 这类人为切点。Walk-forward 每次只用过去窗口选择 expanded local grid 里的参数，然后部署到未来 63 个交易日。固定参数验证使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始后验验证。")
+    lines.append("Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 expanded local grid 候选集中重新选择参数；候选集包含不同 `max_tilt`、`lambda`、`tau` 和 `eta`。固定参数后验验证则使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始固定该配置验证。")
     lines.append(f"- 最小训练窗口：`{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日。")
     lines.append(f"- Walk-forward 测试块：`{VALIDATION_TEST_BLOCK}` 个交易日。")
     lines.append("")
-    lines.append("### 6.1 Nested Walk-Forward")
+    lines.append("### 9.1 Nested Walk-Forward")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1689,7 +1858,7 @@ def write_report(
             validation_plot_paths["walk_forward"],
             TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
         )
-    lines.append("### 6.2 固定参数后验外样本验证")
+    lines.append("### 9.2 固定参数后验外样本验证")
     lines.append("")
     if fixed_holdout_meta:
         lines.append(
@@ -1729,181 +1898,6 @@ def write_report(
             validation_plot_paths["fixed_holdout"],
             TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv",
         )
-    lines.append("## 7. Supplementary Extreme-Tilt Grid")
-    lines.append("")
-    lines.append("第一轮固定 `alpha=0.50, lambda_stress=0.25, lambda_crowded=0.15, tau_weight=1.0, eta=0.05`，只测试 `max_tilt` 与交易成本。这里的 `max_tilt` 是 tanh 平滑映射的最大主动倾斜幅度。")
-    lines.append("")
-    extreme_view = supp_summary[supp_summary["method"] == "supp_extreme_tilt_base"].sort_values(["cost_bps", "max_tilt"]).copy()
-    lines.extend(
-        markdown_table(
-            extreme_view,
-            [
-                "cost_bps",
-                "max_tilt",
-                "final_wealth",
-                "cagr",
-                "sharpe",
-                "max_drawdown",
-                "calmar",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-            ],
-            pct_cols={
-                "max_tilt",
-                "cagr",
-                "max_drawdown",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-            },
-            num_cols={"final_wealth", "sharpe", "calmar"},
-        )
-    )
-    lines.append("")
-    lines.append("## 8. Expanded Local Grid")
-    lines.append("")
-    lines.append("第二轮按你的扩展网格运行：`alpha ∈ {0.50,0.67}`、`lambda_stress ∈ {0.25,0.50}`、`lambda_crowded ∈ {0.05,0.15,0.25}`、`max_tilt ∈ {20%,30%,40%,50%}`、`tau_weight ∈ {0.75,1.0,1.5}`、`eta ∈ {0.03,0.05,0.10}`。主结论看 10bp，20bp 作为压力测试。")
-    lines.append("")
-    local_10 = (
-        supp_summary[(supp_summary["method"] == "supp_expanded_local_grid") & (supp_summary["cost_bps"] == 10)]
-        .sort_values("selection_score", ascending=False)
-        .head(10)
-    )
-    lines.append("### 8.1 10bp 主口径 Top 10")
-    lines.append("")
-    lines.extend(
-        markdown_table(
-            local_10,
-            [
-                "config_id",
-                "final_wealth",
-                "cagr",
-                "sharpe",
-                "max_drawdown",
-                "calmar",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-                "selection_score",
-            ],
-            pct_cols={
-                "cagr",
-                "max_drawdown",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-                "selection_score",
-            },
-            num_cols={"final_wealth", "sharpe", "calmar"},
-        )
-    )
-    lines.append("")
-    local_20 = (
-        supp_summary[(supp_summary["method"] == "supp_expanded_local_grid") & (supp_summary["cost_bps"] == 20)]
-        .sort_values(["sharpe", "calmar", "cagr"], ascending=False)
-        .head(10)
-    )
-    lines.append("### 8.2 20bp 压力测试 Top 10")
-    lines.append("")
-    lines.extend(
-        markdown_table(
-            local_20,
-            [
-                "config_id",
-                "final_wealth",
-                "cagr",
-                "sharpe",
-                "max_drawdown",
-                "calmar",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-            ],
-            pct_cols={
-                "cagr",
-                "max_drawdown",
-                "annual_turnover",
-                "avg_g_weight",
-                "ann_excess_vs_50_50",
-                "ann_excess_vs_100_g",
-                "max_dd_diff_vs_100_g",
-            },
-            num_cols={"final_wealth", "sharpe", "calmar"},
-        )
-    )
-    lines.append("")
-    if not local_10.empty:
-        best_local_id = str(local_10.iloc[0]["config_id"])
-        sensitivity = supplement_cost_sensitivity(supp_summary, best_local_id)
-        lines.append(f"### 8.3 10bp 入选局部网格配置的成本敏感性：`{best_local_id}`")
-        lines.append("")
-        lines.extend(
-            markdown_table(
-                sensitivity,
-                [
-                    "cost_bps",
-                    "final_wealth",
-                    "cagr",
-                    "sharpe",
-                    "max_drawdown",
-                    "calmar",
-                    "annual_turnover",
-                    "ann_excess_vs_50_50",
-                    "ann_excess_vs_100_g",
-                ],
-                pct_cols={
-                    "cagr",
-                    "max_drawdown",
-                    "annual_turnover",
-                    "ann_excess_vs_50_50",
-                    "ann_excess_vs_100_g",
-                },
-                num_cols={"final_wealth", "sharpe", "calmar"},
-            )
-        )
-        lines.append("")
-    lines.append("### 8.4 补充网格资金曲线")
-    lines.append("")
-    lines.append("下面两张图把补充网格的资金曲线单独列出：第一张比较固定结构下不同 `max_tilt`，第二张比较局部网格最佳配置与 buy-and-hold 基准。")
-    if supp_equity_meta.get("best_local_id"):
-        lines.append(f"- 局部网格最佳配置：`{supp_equity_meta['best_local_id']}`")
-    lines.append("")
-    if supp_plot_paths.get("extreme_tilt"):
-        append_figure_with_span(
-            lines,
-            "Supplementary Extreme Tilt 资金曲线",
-            supp_plot_paths["extreme_tilt"],
-            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
-        )
-    if supp_plot_paths.get("best_local"):
-        append_figure_with_span(
-            lines,
-            "Supplementary Best Local Grid 资金曲线",
-            supp_plot_paths["best_local"],
-            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
-        )
-    lines.append("## 9. 2016 起点全可用窗口增量比较，10bp 成本")
-    lines.append("")
-    lines.extend(
-        markdown_table(
-            comparisons,
-            ["comparison", "annualized_excess_return", "tracking_error", "information_ratio", "max_dd_diff", "turnover_diff"],
-            pct_cols={"annualized_excess_return", "tracking_error", "max_dd_diff", "turnover_diff"},
-            num_cols={"information_ratio"},
-        )
-    )
-    lines.append("")
     lines.append("## 10. Score 排序诊断")
     lines.append("")
     lines.extend(
@@ -1914,27 +1908,7 @@ def write_report(
         )
     )
     lines.append("")
-    lines.append("## 11. 资金曲线对比")
-    lines.append("")
-    lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。")
-    lines.append("")
-    if plot_paths.get("all_methods"):
-        append_figure_with_span(
-            lines,
-            "共同起点所有方法资金曲线",
-            plot_paths["all_methods"],
-            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
-        )
-    if plot_paths.get("buy_hold_gd"):
-        append_figure_with_span(
-            lines,
-            "G/D Buy and Hold 基础资金曲线",
-            plot_paths["buy_hold_gd"],
-            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
-        )
-    lines.append("图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。")
-    lines.append("")
-    lines.append("## 12. 共同起点年度表现，10bp 成本")
+    lines.append("## 11. 共同起点年度表现，10bp 成本")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -2010,6 +1984,20 @@ def main() -> None:
         pd.concat([supp_common_returns, benchmark_common_returns], ignore_index=True),
     )
     supp_summary = supp_summary.merge(supp_configs, on=["method", "config_id"], how="left")
+    combined_common_returns = pd.concat([common_returns, supp_common_returns], ignore_index=True)
+
+    best_local = (
+        supp_summary[(supp_summary["cost_bps"] == 10) & (supp_summary["method"] == "supp_expanded_local_grid")]
+        .sort_values("selection_score", ascending=False)
+        .iloc[0]
+    )
+    best_local_config = str(best_local["config_id"])
+    extreme_50 = supp_summary[
+        (supp_summary["cost_bps"] == 10)
+        & (supp_summary["method"] == "supp_extreme_tilt_base")
+        & (supp_summary["max_tilt"].round(6) == 0.50)
+    ].iloc[0]
+    extreme_50_config = str(extreme_50["config_id"])
 
     best_trad = common_metrics[(common_metrics["cost_bps"] == 10) & (common_metrics["method"] == "traditional_smooth_score")].sort_values("selection_score", ascending=False).iloc[0]
 
@@ -2024,9 +2012,8 @@ def main() -> None:
     matched_core = f"core_a{alpha:.2f}_tilt{max_tilt:.2f}_tau{tau_weight:.1f}_eta{eta:.2f}"
 
     selected = {
-        "traditional_smooth_score": ("traditional_smooth_score", str(best_trad["config_id"])),
-        "smooth_tnx_only": ("smooth_tnx_only", matched_tnx),
-        "smooth_core_only": ("smooth_core_only", matched_core),
+        "best_local_grid": ("supp_expanded_local_grid", best_local_config),
+        "extreme_50_tilt": ("supp_extreme_tilt_base", extreme_50_config),
         "benchmark_50_50_gd": ("benchmark_50_50_gd", "benchmark_50_50_gd"),
         "benchmark_100_g": ("benchmark_100_g", "benchmark_100_g"),
         "benchmark_100_d": ("benchmark_100_d", "benchmark_100_d"),
@@ -2034,28 +2021,30 @@ def main() -> None:
     }
     comparisons = []
     for args in [
-        (selected["traditional_smooth_score"], selected["smooth_tnx_only"], "Traditional smooth score - smooth TNX-only"),
-        (selected["traditional_smooth_score"], selected["smooth_core_only"], "Traditional smooth score - smooth core-only"),
-        (selected["traditional_smooth_score"], selected["benchmark_50_50_gd"], "Best smooth method - 50/50"),
+        (selected["best_local_grid"], selected["extreme_50_tilt"], "Best Local Grid - Extreme 50% Tilt"),
+        (selected["best_local_grid"], selected["benchmark_50_50_gd"], "Best Local Grid - 50/50"),
+        (selected["best_local_grid"], selected["benchmark_100_g"], "Best Local Grid - 100% G"),
+        (selected["best_local_grid"], selected["benchmark_spy"], "Best Local Grid - SPY"),
     ]:
-        row = aligned_comparison(common_returns, args[0], args[1], args[2], cost_bps=10)
+        row = aligned_comparison(combined_common_returns, args[0], args[1], args[2], cost_bps=10)
         if row is not None:
             comparisons.append(row)
     comparisons_df = pd.DataFrame(comparisons)
 
-    equity_curves = build_equity_curves(common_returns, selected, cost_bps=10)
+    equity_curves = build_equity_curves(combined_common_returns, selected, cost_bps=10)
     equity_start = pd.to_datetime(equity_curves["date"]).min() if not equity_curves.empty else common_start
-    equity_end = pd.to_datetime(equity_curves["date"]).max() if not equity_curves.empty else pd.to_datetime(common_returns["date"]).max()
+    equity_end = pd.to_datetime(equity_curves["date"]).max() if not equity_curves.empty else pd.to_datetime(combined_common_returns["date"]).max()
     selected_keys = set(selected.values())
-    yearly = yearly_metrics(common_returns, selected_keys, start_date=equity_start, end_date=equity_end)
+    yearly = yearly_metrics(combined_common_returns, selected_keys, start_date=equity_start, end_date=equity_end)
+    all_signals = pd.concat([signals, supp_signals], ignore_index=True)
     score_diag = score_diagnostics(
         features,
-        signals,
-        {selected["traditional_smooth_score"], selected["smooth_tnx_only"], selected["smooth_core_only"]},
+        all_signals,
+        {selected["best_local_grid"], selected["extreme_50_tilt"]},
         start_date=equity_start,
     )
     plot_paths = plot_equity_curves(equity_curves)
-    selected_summary = selected_method_summary(common_returns, equity_curves, selected, cost_bps=10)
+    selected_summary = selected_method_summary(combined_common_returns, equity_curves, selected, cost_bps=10)
     supp_equity_curves, supp_equity_meta = build_supplementary_equity_curves(
         supp_common_returns,
         benchmark_common_returns,
