@@ -34,6 +34,7 @@ TRANSACTION_COST_BPS = (0, 5, 10, 20)
 TRADING_DAYS = 252
 VALIDATION_INITIAL_TRAIN_WINDOW = 252
 VALIDATION_TEST_BLOCK = 63
+POST_2022_VALIDATION_START_DATE = "2022-01-01"
 RAW_FEATURES = (
     "tnx_change_21d",
     "spy_drawdown",
@@ -1191,6 +1192,7 @@ def build_walk_forward_strategy(
     scheme: str,
     initial_train_window: int = VALIDATION_INITIAL_TRAIN_WINDOW,
     test_block: int = VALIDATION_TEST_BLOCK,
+    validation_start_date: str | pd.Timestamp | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     data = candidate_returns[
         (candidate_returns["method"] == "supp_expanded_local_grid")
@@ -1202,6 +1204,9 @@ def build_walk_forward_strategy(
     selection_rows: list[dict[str, object]] = []
 
     start = initial_train_window
+    if validation_start_date is not None:
+        requested_start = pd.Timestamp(validation_start_date)
+        start = max(start, int(dates.searchsorted(requested_start, side="left")))
     while start < len(dates):
         end = min(start + test_block, len(dates))
         if scheme == "expanding":
@@ -1285,6 +1290,7 @@ def build_fixed_holdout_validation(
     supp_common_returns: pd.DataFrame,
     benchmark_common_returns: pd.DataFrame,
     initial_train_window: int = VALIDATION_INITIAL_TRAIN_WINDOW,
+    holdout_start_date: str | pd.Timestamp | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, str]]:
     candidates = supp_common_returns[
         (supp_common_returns["method"] == "supp_expanded_local_grid")
@@ -1302,6 +1308,11 @@ def build_fixed_holdout_validation(
         }
     calibration_dates = candidate_dates[:initial_train_window]
     holdout_start_ts = candidate_dates[initial_train_window]
+    if holdout_start_date is not None:
+        requested_start = pd.Timestamp(holdout_start_date)
+        later_dates = candidate_dates[candidate_dates >= requested_start]
+        if len(later_dates):
+            holdout_start_ts = max(holdout_start_ts, later_dates[0])
     selected_config, calibration_metrics = select_best_config_on_window(candidates, calibration_dates)
     holdout = candidates[
         (candidates["config_id"] == selected_config)
@@ -1330,16 +1341,29 @@ def build_fixed_holdout_validation(
 def build_nested_validation(
     supp_common_returns: pd.DataFrame,
     benchmark_common_returns: pd.DataFrame,
+    validation_start_date: str | pd.Timestamp | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, str]]:
-    wf_expanding, sel_expanding = build_walk_forward_strategy(supp_common_returns, "expanding")
-    wf_rolling, sel_rolling = build_walk_forward_strategy(supp_common_returns, "rolling")
+    wf_expanding, sel_expanding = build_walk_forward_strategy(
+        supp_common_returns,
+        "expanding",
+        validation_start_date=validation_start_date,
+    )
+    wf_rolling, sel_rolling = build_walk_forward_strategy(
+        supp_common_returns,
+        "rolling",
+        validation_start_date=validation_start_date,
+    )
     wf = pd.concat([wf_expanding, wf_rolling], ignore_index=True)
     selections = pd.concat([sel_expanding, sel_rolling], ignore_index=True)
     if wf.empty:
         return wf, selections, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), {}
     first_validation_date = pd.to_datetime(wf["date"]).min()
     benchmark_validation = benchmark_common_returns[pd.to_datetime(benchmark_common_returns["date"]) >= first_validation_date].copy()
-    fixed_holdout, fixed_summary, fixed_meta = build_fixed_holdout_validation(supp_common_returns, benchmark_common_returns)
+    fixed_holdout, fixed_summary, fixed_meta = build_fixed_holdout_validation(
+        supp_common_returns,
+        benchmark_common_returns,
+        holdout_start_date=validation_start_date,
+    )
     validation_returns = pd.concat([wf, fixed_holdout], ignore_index=True)
     labels = {
         "Smooth Score WF Expanding": "walk_forward_expanding",
@@ -1402,7 +1426,11 @@ def build_validation_equity_curves(
     return align_and_rebase_equity(equity)
 
 
-def plot_validation_equity_curves(validation_equity: pd.DataFrame) -> dict[str, Path]:
+def plot_validation_equity_curves(
+    validation_equity: pd.DataFrame,
+    filename: str = "smooth_score_policy_v1_nested_walk_forward_equity_curves.png",
+    title: str = "Walk-Forward and Fixed-Parameter Validation, 10bp Cost",
+) -> dict[str, Path]:
     os.environ.setdefault("MPLCONFIGDIR", str(PLOT_DIR / ".matplotlib"))
     import matplotlib
 
@@ -1430,9 +1458,9 @@ def plot_validation_equity_curves(validation_equity: pd.DataFrame) -> dict[str, 
         fig.savefig(path, dpi=180, bbox_inches="tight")
         plt.close(fig)
 
-    validation_path = PLOT_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.png"
+    validation_path = PLOT_DIR / filename
     holdout_path = PLOT_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png"
-    draw(validation_equity, "Walk-Forward and Fixed-Parameter Validation, 10bp Cost", validation_path)
+    draw(validation_equity, title, validation_path)
     if holdout_path.exists():
         holdout_path.unlink()
     if validation_path.exists():
@@ -1506,6 +1534,7 @@ def write_report(
     supp_summary: pd.DataFrame,
     vol_static_comparison: pd.DataFrame,
     nested_summary: pd.DataFrame,
+    post2022_validation_summary: pd.DataFrame,
     fixed_holdout_summary: pd.DataFrame,
     yearly: pd.DataFrame,
     score_diag: pd.DataFrame,
@@ -1518,7 +1547,9 @@ def write_report(
     vol_static_plot_paths: dict[str, Path],
     vol_static_meta: dict[str, str],
     validation_plot_paths: dict[str, Path],
+    post2022_validation_plot_paths: dict[str, Path],
     fixed_holdout_meta: dict[str, str],
+    post2022_fixed_holdout_meta: dict[str, str],
 ) -> None:
     report_path = REPORT_DIR / "phase1_smooth_score_policy_v1_report.md"
     m10 = metrics[metrics["cost_bps"] == 10].copy()
@@ -1887,6 +1918,60 @@ def write_report(
             validation_plot_paths["walk_forward"],
             TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
         )
+    lines.append("## 9.1 补充：2022 起始 OOS Validation")
+    lines.append("")
+    lines.append("这一节用于剔除 2020 疫情回撤对绩效评价的直接影响。疫情期间 D 篮子回撤一度大于 G 篮子，容易让全样本 OOS 结果受到特殊事件扰动；因此这里从 `2022-01-01` 之后首个共同交易日开始重新生成同口径 OOS validation。")
+    lines.append("")
+    lines.append("- `WF Expanding`：测试块从 2022 年之后重新切分，每个测试块前使用此前全部可用历史选参。")
+    lines.append(f"- `WF Rolling`：测试块从 2022 年之后重新切分，每个测试块前只使用最近 `{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日选参。")
+    if post2022_fixed_holdout_meta:
+        lines.append(
+            f"- `Fixed Parameter`：固定参数仍只用最早训练窗口 `{post2022_fixed_holdout_meta.get('calibration_start')}` 到 "
+            f"`{post2022_fixed_holdout_meta.get('calibration_end')}` 选参一次，但绩效评价从 `{post2022_fixed_holdout_meta.get('holdout_start')}` 开始。"
+        )
+        lines.append(f"- Fixed Parameter 选中配置：`{post2022_fixed_holdout_meta.get('selected_config_id')}`。")
+    lines.append("- 交易成本：`10bp`；所有曲线在同一张图中按共同起点重新 rebased 到 1。")
+    lines.append("")
+    lines.extend(
+        markdown_table(
+            post2022_validation_summary,
+            [
+                "validation_label",
+                "start_date",
+                "end_date",
+                "n_days",
+                "final_wealth",
+                "cagr",
+                "ann_vol",
+                "sharpe",
+                "sortino",
+                "max_drawdown",
+                "calmar",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_expanding_wf",
+                "max_dd_diff_vs_expanding_wf",
+            ],
+            pct_cols={
+                "cagr",
+                "ann_vol",
+                "max_drawdown",
+                "annual_turnover",
+                "avg_g_weight",
+                "ann_excess_vs_expanding_wf",
+                "max_dd_diff_vs_expanding_wf",
+            },
+            num_cols={"final_wealth", "sharpe", "sortino", "calmar"},
+        )
+    )
+    lines.append("")
+    if post2022_validation_plot_paths.get("walk_forward"):
+        append_figure_with_span(
+            lines,
+            "2022 起始 OOS Validation 资金曲线",
+            post2022_validation_plot_paths["walk_forward"],
+            TABLE_DIR / "smooth_score_policy_v1_post_2022_validation_equity_curves.csv",
+        )
     lines.append("## 10. Score 排序诊断")
     lines.append("")
     lines.extend(
@@ -2064,6 +2149,21 @@ def main() -> None:
         benchmark_common_returns,
     )
     validation_plot_paths = plot_validation_equity_curves(nested_wf_equity_curves)
+    post2022_wf_returns, post2022_wf_selections, post2022_validation_summary, post2022_fixed_holdout_returns, post2022_fixed_holdout_summary, post2022_fixed_holdout_meta = build_nested_validation(
+        supp_common_returns,
+        benchmark_common_returns,
+        validation_start_date=POST_2022_VALIDATION_START_DATE,
+    )
+    post2022_validation_equity_curves = build_validation_equity_curves(
+        post2022_wf_returns,
+        post2022_fixed_holdout_returns,
+        benchmark_common_returns,
+    )
+    post2022_validation_plot_paths = plot_validation_equity_curves(
+        post2022_validation_equity_curves,
+        filename="smooth_score_policy_v1_post_2022_validation_equity_curves.png",
+        title="Post-2022 Walk-Forward and Fixed-Parameter Validation, 10bp Cost",
+    )
 
     features.to_csv(INPUT_DIR / "smooth_score_policy_v1_feature_panel.csv", index=False, encoding="utf-8-sig")
     pd.concat([trad_configs, bench_configs], ignore_index=True).to_csv(TABLE_DIR / "smooth_score_policy_v1_config_grid.csv", index=False, encoding="utf-8-sig")
@@ -2092,6 +2192,12 @@ def main() -> None:
     fixed_holdout_returns.to_csv(TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_returns.csv", index=False, encoding="utf-8-sig")
     fixed_holdout_summary.to_csv(TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_summary.csv", index=False, encoding="utf-8-sig")
     nested_wf_equity_curves.to_csv(TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv", index=False, encoding="utf-8-sig")
+    post2022_wf_selections.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_nested_walk_forward_selections.csv", index=False, encoding="utf-8-sig")
+    post2022_wf_returns.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_nested_walk_forward_returns.csv", index=False, encoding="utf-8-sig")
+    post2022_validation_summary.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_validation_summary.csv", index=False, encoding="utf-8-sig")
+    post2022_fixed_holdout_returns.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_fixed_parameter_holdout_returns.csv", index=False, encoding="utf-8-sig")
+    post2022_fixed_holdout_summary.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_fixed_parameter_holdout_summary.csv", index=False, encoding="utf-8-sig")
+    post2022_validation_equity_curves.to_csv(TABLE_DIR / "smooth_score_policy_v1_post_2022_validation_equity_curves.csv", index=False, encoding="utf-8-sig")
     common_end = pd.to_datetime(common_returns["date"]).max()
     write_report(
         features,
@@ -2101,6 +2207,7 @@ def main() -> None:
         supp_summary,
         vol_static_comparison,
         nested_summary,
+        post2022_validation_summary,
         fixed_holdout_summary,
         yearly,
         score_diag,
@@ -2113,7 +2220,9 @@ def main() -> None:
         vol_static_plot_paths,
         vol_static_meta,
         validation_plot_paths,
+        post2022_validation_plot_paths,
         fixed_holdout_meta,
+        post2022_fixed_holdout_meta,
     )
 
     print(f"Traditional configs: {trad_configs['config_id'].nunique()}")

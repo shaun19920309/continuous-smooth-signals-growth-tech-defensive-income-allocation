@@ -60,6 +60,7 @@
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png` | 2018-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_post_2022_validation_equity_curves.png` | 2022-01-03 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_validation_equity_curves.csv::date` |
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv::date` |
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv::date` |
 | smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv::date` |
@@ -79,6 +80,12 @@
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_returns.csv` | 2018-06-28 | 2026-05-15 | `date` |
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_selections.csv` | 2018-06-28 | 2026-05-15 | `test_start/test_end` |
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_summary.csv` | 2018-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_fixed_parameter_holdout_returns.csv` | 2022-01-03 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_fixed_parameter_holdout_summary.csv` | 2022-01-03 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_nested_walk_forward_returns.csv` | 2022-01-03 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_nested_walk_forward_selections.csv` | 2022-01-03 | 2026-05-15 | `test_start/test_end` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_validation_equity_curves.csv` | 2022-01-03 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_post_2022_validation_summary.csv` | 2022-01-03 | 2026-05-15 | `start_date/end_date` |
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_score_diagnostics.csv` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_static_gd_grid.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
 | smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv` | 2017-06-28 | 2026-05-15 | `date` |
@@ -395,13 +402,36 @@
 ![OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
 图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
+##### 9.1 补充：2022 起始 OOS Validation
+
+这一节用于剔除 2020 疫情回撤对绩效评价的直接影响。疫情期间 D 篮子回撤一度大于 G 篮子，容易让全样本 OOS 结果受到特殊事件扰动；因此这里从 `2022-01-01` 之后首个共同交易日开始重新生成同口径 OOS validation。
+
+- `WF Expanding`：测试块从 2022 年之后重新切分，每个测试块前使用此前全部可用历史选参。
+- `WF Rolling`：测试块从 2022 年之后重新切分，每个测试块前只使用最近 `252` 个交易日选参。
+- `Fixed Parameter`：固定参数仍只用最早训练窗口 `2017-06-28` 到 `2018-06-27` 选参一次，但绩效评价从 `2022-01-03` 开始。
+- Fixed Parameter 选中配置：`local_a0.50_ls0.50_lc0.25_tilt0.20_tau1.50_eta0.03`。
+- 交易成本：`10bp`；所有曲线在同一张图中按共同起点重新 rebased 到 1。
+
+| validation_label | start_date | end_date | n_days | final_wealth | cagr | ann_vol | sharpe | sortino | max_drawdown | calmar | annual_turnover | avg_g_weight | ann_excess_vs_expanding_wf | max_dd_diff_vs_expanding_wf |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Smooth Score WF Expanding | 2022-01-03 | 2026-05-15 | 1096 | 1.86 | 15.30% | 17.53% | 0.90 | 1.22 | -19.89% | 0.77 | 406.50% | 41.52% | 0.00% | 0.00% |
+| Smooth Score WF Rolling | 2022-01-03 | 2026-05-15 | 1096 | 1.76 | 13.92% | 17.78% | 0.82 | 1.08 | -21.28% | 0.65 | 390.15% | 45.27% | -1.38% | -1.39% |
+| Fixed Parameter | 2022-01-03 | 2026-05-15 | 1096 | 1.77 | 13.99% | 17.85% | 0.82 | 1.09 | -22.46% | 0.62 | 83.97% | 47.31% | -1.31% | -2.58% |
+| 50/50 G-D | 2022-01-03 | 2026-05-15 | 1096 | 1.72 | 13.23% | 18.02% | 0.78 | 1.02 | -23.78% | 0.56 | 0.00% | 50.00% | -2.07% | -3.89% |
+| 100% G | 2022-01-03 | 2026-05-15 | 1096 | 1.87 | 15.45% | 23.81% | 0.72 | 0.93 | -33.92% | 0.46 | 0.00% | 100.00% | 0.15% | -14.04% |
+| 100% D | 2022-01-03 | 2026-05-15 | 1096 | 1.53 | 10.32% | 14.71% | 0.74 | 0.99 | -17.32% | 0.60 | 0.00% | 0.00% | -4.98% | 2.57% |
+| SPY | 2022-01-03 | 2026-05-15 | 1096 | 1.65 | 12.21% | 17.68% | 0.74 | 0.96 | -24.50% | 0.50 | 0.00% |  | -3.09% | -4.61% |
+
+![2022 起始 OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_post_2022_validation_equity_curves.png)
+图表时间范围：`2022-01-03` 到 `2026-05-15`。
+
 ##### 10. Score 排序诊断
 
 | method | config_id | Q1 | Q2 | Q3 | Q4 | Q5 | Q5_minus_Q1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| supp_extreme_tilt_base | extreme_a0.50_ls0.25_lc0.15_tilt0.50_tau1.0_eta0.05 | -0.35% | -0.04% | 0.51% | 3.63% | 5.22% | 5.57% |
 | matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
 | supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | -1.01% | 0.17% | 1.00% | 3.32% | 5.48% | 6.48% |
+| supp_extreme_tilt_base | extreme_a0.50_ls0.25_lc0.15_tilt0.50_tau1.0_eta0.05 | -0.35% | -0.04% | 0.51% | 3.63% | 5.22% | 5.57% |
 | matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 
 ##### 11. 共同起点年度表现，10bp 成本
