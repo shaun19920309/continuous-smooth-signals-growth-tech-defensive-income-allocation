@@ -27,6 +27,41 @@ SMOOTH_REPORT = ROOT / "data" / "phase1" / "smooth_score_policy_v1" / "reports" 
 FACTOR_COVERAGE = ROOT / "data" / "phase1" / "factor_attribution" / "tables" / "factor_attribution_data_coverage.csv"
 SMOOTH_SELECTED = ROOT / "data" / "phase1" / "smooth_score_policy_v1" / "tables" / "smooth_score_policy_v1_common_oos_selected_summary.csv"
 
+ARCHIVE_MODULES = [
+    "archive_2016_full",
+    "factor_attribution",
+    "state_framework_v2",
+    "smooth_score_policy_v1",
+]
+
+PACKAGE_EXCLUDED_GENERATED = {
+    "smooth_score_policy_v1_daily_returns.csv",
+    "smooth_score_policy_v1_signals.csv",
+    "smooth_score_policy_v1_supplementary_tilt_common_oos_returns.csv",
+}
+
+PLOT_DATE_SOURCES = {
+    "smooth_score_policy_v1_common_oos_buy_hold_gd.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
+    "smooth_score_policy_v1_common_oos_equity_curves_all.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
+    "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv",
+    "smooth_score_policy_v1_nested_walk_forward_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
+    "smooth_score_policy_v1_supplementary_best_local_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+    "smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+    "smooth_score_policy_v1_vol_matched_static_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv",
+}
+
+TABLE_DATE_SOURCE_OVERRIDES = {
+    "phase1_2016_full_archive_lineage.csv": None,
+    "phase1_2016_full_artifact_date_ranges.csv": None,
+    "state_framework_v2_definitions.csv": None,
+    "state_framework_v2_forward_summary.csv": "data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv",
+    "state_framework_v2_triplet_summary.csv": "data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv",
+    "smooth_score_policy_v1_config_grid.csv": None,
+    "smooth_score_policy_v1_supplementary_tilt_config_grid.csv": None,
+    "smooth_score_policy_v1_common_oos_score_diagnostics.csv": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
+    "smooth_score_policy_v1_score_diagnostics.csv": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
+}
+
 
 def ensure_dirs() -> None:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -84,12 +119,124 @@ def write_lineage_table() -> Path:
     return path
 
 
+def parse_date_series(series: pd.Series) -> pd.Series:
+    return pd.to_datetime(series, errors="coerce").dropna()
+
+
+def date_range_from_csv(path: Path) -> tuple[str, str, str, str]:
+    """Infer an artifact's calendar date range from its date columns."""
+    df = pd.read_csv(path, encoding="utf-8-sig")
+    if df.empty:
+        return "N/A", "N/A", "empty_table", "表格为空，无法推断时间范围。"
+
+    if "date" in df.columns:
+        dates = parse_date_series(df["date"])
+        if not dates.empty:
+            return str(dates.min().date()), str(dates.max().date()), "date", ""
+
+    paired_candidates = [
+        ("start_date", "end_date"),
+        ("first_return_date", "last_return_date"),
+        ("test_start", "test_end"),
+        ("train_start", "train_end"),
+        ("calibration_start", "calibration_end"),
+    ]
+    for start_col, end_col in paired_candidates:
+        if start_col in df.columns and end_col in df.columns:
+            starts = parse_date_series(df[start_col])
+            ends = parse_date_series(df[end_col])
+            if not starts.empty and not ends.empty:
+                return str(starts.min().date()), str(ends.max().date()), f"{start_col}/{end_col}", ""
+
+    date_like_cols = [c for c in df.columns if "date" in c.lower() or c.lower().endswith("_start") or c.lower().endswith("_end")]
+    dates: list[pd.Timestamp] = []
+    for col in date_like_cols:
+        parsed = parse_date_series(df[col])
+        if not parsed.empty:
+            dates.extend(parsed.tolist())
+    if dates:
+        return str(min(dates).date()), str(max(dates).date()), "all_date_like_columns", ""
+
+    return "N/A", "N/A", "not_time_series", "配置、定义或链路表，不包含逐日观测。"
+
+
+def infer_artifact_date_range(path: Path) -> tuple[str, str, str, str]:
+    override = TABLE_DATE_SOURCE_OVERRIDES.get(path.name, "__NO_OVERRIDE__")
+    if override is None:
+        return "N/A", "N/A", "not_time_series", "配置、定义或链路表，不包含逐日观测。"
+    if override != "__NO_OVERRIDE__":
+        source = ROOT / override
+        if source.exists():
+            start, end, source_col, note = date_range_from_csv(source)
+            return start, end, f"source:{override}::{source_col}", note
+        return "N/A", "N/A", f"missing_source:{override}", "指定的时间范围来源文件不存在。"
+    return date_range_from_csv(path)
+
+
+def write_artifact_date_ranges_table() -> Path:
+    rows: list[dict[str, str]] = []
+    phase1_dir = ROOT / "data" / "phase1"
+    for module in ARCHIVE_MODULES:
+        module_dir = phase1_dir / module
+        if not module_dir.exists():
+            continue
+        for path in sorted(module_dir.rglob("*")):
+            if not path.is_file() or path.suffix.lower() not in {".csv", ".png"}:
+                continue
+            if path.name in PACKAGE_EXCLUDED_GENERATED:
+                continue
+            if path.name == "phase1_2016_full_artifact_date_ranges.csv":
+                continue
+            rel_path = path.relative_to(ROOT)
+            artifact_type = "figure" if path.suffix.lower() == ".png" else "table"
+            if artifact_type == "figure":
+                source_rel = PLOT_DATE_SOURCES.get(path.name)
+                if source_rel and (ROOT / source_rel).exists():
+                    start, end, source_col, note = date_range_from_csv(ROOT / source_rel)
+                    date_source = f"source:{source_rel}::{source_col}"
+                else:
+                    start, end, date_source, note = "N/A", "N/A", "missing_plot_source", "未找到该图对应的资金曲线表。"
+            else:
+                start, end, date_source, note = infer_artifact_date_range(path)
+
+            rows.append(
+                {
+                    "module": module,
+                    "artifact_type": artifact_type,
+                    "artifact_name": path.name,
+                    "path": str(rel_path),
+                    "start_date": start,
+                    "end_date": end,
+                    "date_source": date_source,
+                    "notes": note,
+                }
+            )
+
+    path = TABLE_DIR / "phase1_2016_full_artifact_date_ranges.csv"
+    rows.append(
+        {
+            "module": "archive_2016_full",
+            "artifact_type": "table",
+            "artifact_name": path.name,
+            "path": str(path.relative_to(ROOT)),
+            "start_date": "N/A",
+            "end_date": "N/A",
+            "date_source": "not_time_series",
+            "notes": "本表是 artifact 时间范围索引，单行样本日期不适用。",
+        }
+    )
+    pd.DataFrame(rows).sort_values(["module", "artifact_type", "path"]).to_csv(path, index=False, encoding="utf-8-sig")
+    return path
+
+
 def build_report() -> Path:
     ensure_dirs()
     lineage_path = write_lineage_table()
+    artifact_ranges_path = write_artifact_date_ranges_table()
 
     smooth = pd.read_csv(SMOOTH_SELECTED, encoding="utf-8-sig")
     smooth_rows = smooth[["display_name", "start_date", "end_date", "n_days", "final_wealth", "cagr", "ann_vol", "sharpe", "max_drawdown", "annual_turnover", "avg_g_weight"]]
+    artifact_ranges = pd.read_csv(artifact_ranges_path, encoding="utf-8-sig", keep_default_na=False)
 
     lines: list[str] = []
     lines.append("# Phase 1 2016 Full Archive Combined Report")
@@ -132,13 +279,27 @@ def build_report() -> Path:
             f"{'' if pd.isna(row['avg_g_weight']) else format(row['avg_g_weight'], '.2%')} |"
         )
     lines.append("")
-    lines.append("## 4. 合并报告正文")
+    lines.append("## 4. 表格与图像时间范围索引")
     lines.append("")
-    lines.append("### 4.1 因子归因模块")
+    lines.append(f"完整索引已输出到：`{artifact_ranges_path.relative_to(ROOT)}`")
+    lines.append("")
+    lines.append("下面列出本归档中所有保留的实验数据表和资金曲线图的起止日期。`N/A` 表示该文件是配置、定义、链路或索引文件，本身不包含逐日观测。")
+    lines.append("")
+    lines.append("| module | type | artifact | start_date | end_date | date_source |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
+    for row in artifact_ranges.to_dict("records"):
+        lines.append(
+            f"| {row['module']} | {row['artifact_type']} | `{row['path']}` | "
+            f"{row['start_date']} | {row['end_date']} | `{row['date_source']}` |"
+        )
+    lines.append("")
+    lines.append("## 5. 合并报告正文")
+    lines.append("")
+    lines.append("### 5.1 因子归因模块")
     lines.append("")
     lines.append(demote_markdown(read_text(FACTOR_REPORT), levels=3))
     lines.append("")
-    lines.append("### 4.2 Smooth Continuous Score Policy v1")
+    lines.append("### 5.2 Smooth Continuous Score Policy v1")
     lines.append("")
     lines.append(demote_markdown(read_text(SMOOTH_REPORT), levels=3))
 

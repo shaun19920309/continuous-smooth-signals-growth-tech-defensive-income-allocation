@@ -1464,6 +1464,31 @@ def markdown_table(df: pd.DataFrame, columns: list[str], pct_cols: set[str] | No
     return lines
 
 
+def date_span_from_csv(path: Path) -> tuple[str, str]:
+    if not path.exists():
+        return "N/A", "N/A"
+    df = pd.read_csv(path, encoding="utf-8-sig")
+    if df.empty:
+        return "N/A", "N/A"
+    if "date" in df.columns:
+        dates = pd.to_datetime(df["date"], errors="coerce").dropna()
+        if not dates.empty:
+            return str(dates.min().date()), str(dates.max().date())
+    if {"start_date", "end_date"}.issubset(df.columns):
+        starts = pd.to_datetime(df["start_date"], errors="coerce").dropna()
+        ends = pd.to_datetime(df["end_date"], errors="coerce").dropna()
+        if not starts.empty and not ends.empty:
+            return str(starts.min().date()), str(ends.max().date())
+    return "N/A", "N/A"
+
+
+def append_figure_with_span(lines: list[str], caption: str, figure_path: Path, source_table: Path) -> None:
+    start, end = date_span_from_csv(source_table)
+    lines.append(f"![{caption}]({figure_path})")
+    lines.append(f"图表时间范围：`{start}` 到 `{end}`。")
+    lines.append("")
+
+
 def write_report(
     features: pd.DataFrame,
     metrics: pd.DataFrame,
@@ -1610,8 +1635,12 @@ def write_report(
     )
     lines.append("")
     if vol_static_plot_paths.get("vol_matched_static"):
-        lines.append(f"![Vol-Matched 与静态 G/D 对照资金曲线]({vol_static_plot_paths['vol_matched_static']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "Vol-Matched 与静态 G/D 对照资金曲线",
+            vol_static_plot_paths["vol_matched_static"],
+            TABLE_DIR / "smooth_score_policy_v1_vol_matched_static_equity_curves.csv",
+        )
     lines.append("## 6. Nested / Walk-Forward 与固定参数后验验证")
     lines.append("")
     lines.append("这一节不再用全样本挑参数，也不使用 2021/2022 这类人为切点。Walk-forward 每次只用过去窗口选择 expanded local grid 里的参数，然后部署到未来 63 个交易日。固定参数验证使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始后验验证。")
@@ -1654,8 +1683,12 @@ def write_report(
     )
     lines.append("")
     if validation_plot_paths.get("walk_forward"):
-        lines.append(f"![Nested Walk-Forward 资金曲线]({validation_plot_paths['walk_forward']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "Nested Walk-Forward 资金曲线",
+            validation_plot_paths["walk_forward"],
+            TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
+        )
     lines.append("### 6.2 固定参数后验外样本验证")
     lines.append("")
     if fixed_holdout_meta:
@@ -1690,8 +1723,12 @@ def write_report(
     )
     lines.append("")
     if validation_plot_paths.get("fixed_holdout"):
-        lines.append(f"![固定参数后验验证资金曲线]({validation_plot_paths['fixed_holdout']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "固定参数后验验证资金曲线",
+            validation_plot_paths["fixed_holdout"],
+            TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv",
+        )
     lines.append("## 7. Supplementary Extreme-Tilt Grid")
     lines.append("")
     lines.append("第一轮固定 `alpha=0.50, lambda_stress=0.25, lambda_crowded=0.15, tau_weight=1.0, eta=0.05`，只测试 `max_tilt` 与交易成本。这里的 `max_tilt` 是 tanh 平滑映射的最大主动倾斜幅度。")
@@ -1843,11 +1880,19 @@ def write_report(
         lines.append(f"- 局部网格最佳配置：`{supp_equity_meta['best_local_id']}`")
     lines.append("")
     if supp_plot_paths.get("extreme_tilt"):
-        lines.append(f"![Supplementary Extreme Tilt 资金曲线]({supp_plot_paths['extreme_tilt']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "Supplementary Extreme Tilt 资金曲线",
+            supp_plot_paths["extreme_tilt"],
+            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+        )
     if supp_plot_paths.get("best_local"):
-        lines.append(f"![Supplementary Best Local Grid 资金曲线]({supp_plot_paths['best_local']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "Supplementary Best Local Grid 资金曲线",
+            supp_plot_paths["best_local"],
+            TABLE_DIR / "smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
+        )
     lines.append("## 9. 2016 起点全可用窗口增量比较，10bp 成本")
     lines.append("")
     lines.extend(
@@ -1874,11 +1919,19 @@ def write_report(
     lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。")
     lines.append("")
     if plot_paths.get("all_methods"):
-        lines.append(f"![共同起点所有方法资金曲线]({plot_paths['all_methods']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "共同起点所有方法资金曲线",
+            plot_paths["all_methods"],
+            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
+        )
     if plot_paths.get("buy_hold_gd"):
-        lines.append(f"![G/D Buy and Hold 基础资金曲线]({plot_paths['buy_hold_gd']})")
-        lines.append("")
+        append_figure_with_span(
+            lines,
+            "G/D Buy and Hold 基础资金曲线",
+            plot_paths["buy_hold_gd"],
+            TABLE_DIR / "smooth_score_policy_v1_common_oos_equity_curves.csv",
+        )
     lines.append("图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。")
     lines.append("")
     lines.append("## 12. 共同起点年度表现，10bp 成本")
@@ -1927,6 +1980,7 @@ def write_report(
     lines.append(f"- Vol-matched 与静态 G/D 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_vol_matched_static_equity_curves.png'}`")
     lines.append(f"- Nested walk-forward 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_nested_walk_forward_equity_curves.png'}`")
     lines.append(f"- 固定参数后验验证曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png'}`")
+    lines.append("- 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。")
     lines.append("")
     report_path.write_text("\n".join(lines), encoding="utf-8")
 

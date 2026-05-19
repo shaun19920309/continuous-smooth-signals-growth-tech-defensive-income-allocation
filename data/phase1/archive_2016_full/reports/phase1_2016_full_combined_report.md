@@ -39,9 +39,64 @@
 | 100% D Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 2.80 | 12.42% | 17.53% | 0.76 | -36.71% | 0.00% | 0.00% |
 | SPY Buy & Hold | 2017-06-28 | 2026-05-15 | 2233 | 3.49 | 15.25% | 18.74% | 0.85 | -33.72% | 0.00% |  |
 
-## 4. 合并报告正文
+## 4. 表格与图像时间范围索引
 
-### 4.1 因子归因模块
+完整索引已输出到：`data/phase1/archive_2016_full/tables/phase1_2016_full_artifact_date_ranges.csv`
+
+下面列出本归档中所有保留的实验数据表和资金曲线图的起止日期。`N/A` 表示该文件是配置、定义、链路或索引文件，本身不包含逐日观测。
+
+| module | type | artifact | start_date | end_date | date_source |
+| --- | --- | --- | --- | --- | --- |
+| archive_2016_full | table | `data/phase1/archive_2016_full/tables/phase1_2016_full_archive_lineage.csv` | N/A | N/A | `not_time_series` |
+| archive_2016_full | table | `data/phase1/archive_2016_full/tables/phase1_2016_full_artifact_date_ranges.csv` | N/A | N/A | `not_time_series` |
+| factor_attribution | table | `data/phase1/factor_attribution/inputs/phase1_factor_returns_panel.csv` | 2016-12-21 | 2026-03-31 | `date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv` | 2006-05-23 | 2026-03-31 | `first_return_date/last_return_date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_etfs_full_sample.csv` | 2006-05-23 | 2026-03-31 | `start_date/end_date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_factor_adjusted_returns.csv` | 2016-12-21 | 2026-03-31 | `date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_portfolios_full_sample.csv` | 2016-12-21 | 2026-03-31 | `start_date/end_date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_rolling_betas.csv` | 2017-12-20 | 2026-03-31 | `date` |
+| factor_attribution | table | `data/phase1/factor_attribution/tables/factor_attribution_rolling_period_summary.csv` | 2020-03-23 | 2026-03-31 | `start_date/end_date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png` | 2018-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png` | 2018-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | figure | `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv::date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/inputs/smooth_score_policy_v1_feature_panel.csv` | 2006-05-22 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_comparisons.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv` | 2017-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_metrics.csv` | 2016-12-21 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_score_diagnostics.csv` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_selected_summary.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_yearly_metrics.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_comparisons.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_config_grid.csv` | N/A | N/A | `not_time_series` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv` | 2018-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_returns.csv` | 2018-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_summary.csv` | 2018-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_metrics.csv` | 2006-05-23 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_equity_curves.csv` | 2018-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_returns.csv` | 2018-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_selections.csv` | 2018-06-28 | 2026-05-15 | `test_start/test_end` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_summary.csv` | 2018-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_score_diagnostics.csv` | 2017-06-28 | 2026-05-15 | `source:data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv::date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_static_gd_grid.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv` | 2017-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_summary.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_config_grid.csv` | N/A | N/A | `not_time_series` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_comparison.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv` | 2017-06-28 | 2026-05-15 | `date` |
+| smooth_score_policy_v1 | table | `data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_yearly_metrics.csv` | 2017-06-28 | 2026-05-15 | `start_date/end_date` |
+| state_framework_v2 | table | `data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv` | 2006-05-22 | 2026-05-15 | `date` |
+| state_framework_v2 | table | `data/phase1/state_framework_v2/tables/state_framework_v2_coverage.csv` | 2016-12-21 | 2026-05-15 | `start_date/end_date` |
+| state_framework_v2 | table | `data/phase1/state_framework_v2/tables/state_framework_v2_definitions.csv` | N/A | N/A | `not_time_series` |
+| state_framework_v2 | table | `data/phase1/state_framework_v2/tables/state_framework_v2_forward_summary.csv` | 2006-05-22 | 2026-05-15 | `source:data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv::date` |
+| state_framework_v2 | table | `data/phase1/state_framework_v2/tables/state_framework_v2_triplet_summary.csv` | 2006-05-22 | 2026-05-15 | `source:data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv::date` |
+
+## 5. 合并报告正文
+
+### 5.1 因子归因模块
 
 #### 第一阶段收益归因模块报告
 
@@ -153,7 +208,7 @@
 - 数据覆盖：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv`
 
 
-### 4.2 Smooth Continuous Score Policy v1
+### 5.2 Smooth Continuous Score Policy v1
 
 #### 第一阶段 Smooth Continuous Score Policy v1 报告
 
@@ -228,6 +283,7 @@
 | Best CAGR Static G/D under Smooth MaxDD (86% G) | best_cagr_static_under_smooth_maxdd | 86.00% |  | 5.11 | 20.21% | 22.18% | 0.94 | 1.15 | -31.59% | 0.64 | 0.00% | 1.42% | 0.04% |
 
 ![Vol-Matched 与静态 G/D 对照资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ##### 6. Nested / Walk-Forward 与固定参数后验验证
 
@@ -247,6 +303,7 @@
 | SPY | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  | -3.19% | -0.79% |
 
 ![Nested Walk-Forward 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
+图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ###### 6.2 固定参数后验外样本验证
 
@@ -262,6 +319,7 @@
 | SPY Holdout | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  |
 
 ![固定参数后验验证资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png)
+图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ##### 7. Supplementary Extreme-Tilt Grid
 
@@ -335,8 +393,10 @@
 - 局部网格最佳配置：`local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05`
 
 ![Supplementary Extreme Tilt 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ![Supplementary Best Local Grid 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ##### 9. 2016 起点全可用窗口增量比较，10bp 成本
 
@@ -351,16 +411,18 @@
 | method | config_id | Q1 | Q2 | Q3 | Q4 | Q5 | Q5_minus_Q1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | traditional_smooth_score | trad_a0.50_ls0.25_lc0.05_tilt0.20_tau1.0_eta0.05 | -0.68% | -0.00% | 0.93% | 3.49% | 5.24% | 5.92% |
-| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
+| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 
 ##### 11. 资金曲线对比
 
 下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。
 
 ![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ![G/D Buy and Hold 基础资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。
 
@@ -473,3 +535,4 @@
 - Vol-matched 与静态 G/D 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
 - Nested walk-forward 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
 - 固定参数后验验证曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png`
+- 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。

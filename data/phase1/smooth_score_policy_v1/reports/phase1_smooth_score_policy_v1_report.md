@@ -71,6 +71,7 @@
 | Best CAGR Static G/D under Smooth MaxDD (86% G) | best_cagr_static_under_smooth_maxdd | 86.00% |  | 5.11 | 20.21% | 22.18% | 0.94 | 1.15 | -31.59% | 0.64 | 0.00% | 1.42% | 0.04% |
 
 ![Vol-Matched 与静态 G/D 对照资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ## 6. Nested / Walk-Forward 与固定参数后验验证
 
@@ -90,6 +91,7 @@
 | SPY | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  | -3.19% | -0.79% |
 
 ![Nested Walk-Forward 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
+图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ### 6.2 固定参数后验外样本验证
 
@@ -105,6 +107,7 @@
 | SPY Holdout | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  |
 
 ![固定参数后验验证资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png)
+图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ## 7. Supplementary Extreme-Tilt Grid
 
@@ -178,8 +181,10 @@
 - 局部网格最佳配置：`local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05`
 
 ![Supplementary Extreme Tilt 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ![Supplementary Best Local Grid 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ## 9. 2016 起点全可用窗口增量比较，10bp 成本
 
@@ -194,16 +199,18 @@
 | method | config_id | Q1 | Q2 | Q3 | Q4 | Q5 | Q5_minus_Q1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | traditional_smooth_score | trad_a0.50_ls0.25_lc0.05_tilt0.20_tau1.0_eta0.05 | -0.68% | -0.00% | 0.93% | 3.49% | 5.24% | 5.92% |
-| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 | smooth_core_only | core_a0.50_tilt0.20_tau1.0_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
+| smooth_tnx_only | tnx_tilt0.20_tau1.0_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 
 ## 11. 资金曲线对比
 
 下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。
 
 ![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ![G/D Buy and Hold 基础资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png)
+图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。
 
@@ -316,3 +323,4 @@
 - Vol-matched 与静态 G/D 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
 - Nested walk-forward 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
 - 固定参数后验验证曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png`
+- 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。
