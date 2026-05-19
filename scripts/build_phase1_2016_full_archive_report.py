@@ -43,7 +43,6 @@ PACKAGE_EXCLUDED_GENERATED = {
 PLOT_DATE_SOURCES = {
     "smooth_score_policy_v1_common_oos_buy_hold_gd.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
     "smooth_score_policy_v1_common_oos_equity_curves_all.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
-    "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv",
     "smooth_score_policy_v1_nested_walk_forward_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
     "smooth_score_policy_v1_supplementary_best_local_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
     "smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",

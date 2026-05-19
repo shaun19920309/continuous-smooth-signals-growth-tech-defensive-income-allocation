@@ -159,50 +159,39 @@
 ![Vol-Matched 与静态 G/D 对照资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
-## 9. Nested / Walk-Forward 与固定参数后验验证
+## 9. OOS Validation：Expanding、Rolling 与固定参数
 
-Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 expanded local grid 候选集中重新选择参数；候选集包含不同 `max_tilt`、`lambda`、`tau` 和 `eta`。固定参数后验验证则使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始固定该配置验证。
-- 最小训练窗口：`252` 个交易日。
-- Walk-forward 测试块：`63` 个交易日。
+这一节把 `WF Expanding`、`WF Rolling` 和 `Fixed Parameter` 合并到同一张 OOS 表、同一张资金曲线中，交易期完全对齐。它们都只在过去窗口内选择参数，然后部署到之后的测试期。
 
-### 9.1 Nested Walk-Forward
+- 候选参数池：expanded local grid，即 `alpha ∈ {0.50,0.67}`、`lambda_stress ∈ {0.25,0.50}`、`lambda_crowded ∈ {0.05,0.15,0.25}`、`max_tilt ∈ {20%,30%,40%,50%}`、`tau_weight ∈ {0.75,1.0,1.5}`、`eta ∈ {0.03,0.05,0.10}`。
+- 初始训练窗口：`252` 个交易日；测试块长度：`63` 个交易日。
+- 参数选择指标：`selection_score`，等权平均 Sharpe、Calmar、CAGR、max drawdown 排名和低 turnover 排名。
+- `WF Expanding`：每个测试块前，使用从最早可用日期到测试块前一日的全部历史重新选参。
+- `WF Rolling`：每个测试块前，只使用最近 `252` 个交易日重新选参。
+- `Fixed Parameter`：只用最早训练窗口 `2017-06-28` 到 `2018-06-27` 选参一次，从 `2018-06-28` 开始固定该配置交易。
+- Fixed Parameter 选中配置：`local_a0.50_ls0.50_lc0.25_tilt0.20_tau1.50_eta0.03`。
 
 | validation_label | start_date | end_date | n_days | final_wealth | cagr | ann_vol | sharpe | sortino | max_drawdown | calmar | annual_turnover | avg_g_weight | ann_excess_vs_expanding_wf | max_dd_diff_vs_expanding_wf |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Smooth Score WF Expanding | 2018-06-28 | 2026-05-15 | 1981 | 3.83 | 18.64% | 19.77% | 0.96 | 1.16 | -32.93% | 0.57 | 332.21% | 44.82% | 0.00% | 0.00% |
 | Smooth Score WF Rolling | 2018-06-28 | 2026-05-15 | 1981 | 3.68 | 18.02% | 19.86% | 0.93 | 1.12 | -32.79% | 0.55 | 350.79% | 46.66% | -0.61% | 0.14% |
+| Fixed Parameter | 2018-06-28 | 2026-05-15 | 1981 | 3.64 | 17.86% | 19.90% | 0.93 | 1.11 | -33.19% | 0.54 | 88.36% | 48.63% | -0.77% | -0.26% |
 | 50/50 G-D | 2018-06-28 | 2026-05-15 | 1981 | 3.46 | 17.10% | 20.00% | 0.89 | 1.06 | -33.59% | 0.51 | 0.00% | 50.00% | -1.53% | -0.66% |
 | 100% G | 2018-06-28 | 2026-05-15 | 1981 | 4.51 | 21.13% | 24.38% | 0.91 | 1.13 | -34.35% | 0.62 | 0.00% | 100.00% | 2.50% | -1.42% |
 | 100% D | 2018-06-28 | 2026-05-15 | 1981 | 2.53 | 12.51% | 18.14% | 0.74 | 0.85 | -36.71% | 0.34 | 0.00% | 0.00% | -6.13% | -3.79% |
 | SPY | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  | -3.19% | -0.79% |
 
-![Nested Walk-Forward 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
-图表时间范围：`2018-06-28` 到 `2026-05-15`。
-
-### 9.2 固定参数后验外样本验证
-
-- 参数选择期：`2017-06-28` 到 `2018-06-27`；后验验证期从 `2018-06-28` 开始；训练窗口 `252` 个交易日。
-- 固定参数配置：`local_a0.50_ls0.50_lc0.25_tilt0.20_tau1.50_eta0.03`
-
-| validation_label | start_date | end_date | n_days | final_wealth | cagr | ann_vol | sharpe | sortino | max_drawdown | calmar | annual_turnover | avg_g_weight |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Fixed Parameter Earliest Holdout | 2018-06-28 | 2026-05-15 | 1981 | 3.64 | 17.86% | 19.90% | 0.93 | 1.11 | -33.19% | 0.54 | 88.36% | 48.63% |
-| 50/50 G-D Holdout | 2018-06-28 | 2026-05-15 | 1981 | 3.46 | 17.10% | 20.00% | 0.89 | 1.06 | -33.59% | 0.51 | 0.00% | 50.00% |
-| 100% G Holdout | 2018-06-28 | 2026-05-15 | 1981 | 4.51 | 21.13% | 24.38% | 0.91 | 1.13 | -34.35% | 0.62 | 0.00% | 100.00% |
-| 100% D Holdout | 2018-06-28 | 2026-05-15 | 1981 | 2.53 | 12.51% | 18.14% | 0.74 | 0.85 | -36.71% | 0.34 | 0.00% | 0.00% |
-| SPY Holdout | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  |
-
-![固定参数后验验证资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png)
+![OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
 图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ## 10. Score 排序诊断
 
 | method | config_id | Q1 | Q2 | Q3 | Q4 | Q5 | Q5_minus_Q1 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | -1.01% | 0.17% | 1.00% | 3.32% | 5.48% | 6.48% |
 | supp_extreme_tilt_base | extreme_a0.50_ls0.25_lc0.15_tilt0.50_tau1.0_eta0.05 | -0.35% | -0.04% | 0.51% | 3.63% | 5.22% | 5.57% |
-| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 | matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
+| supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | -1.01% | 0.17% | 1.00% | 3.32% | 5.48% | 6.48% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
 
 ## 11. 共同起点年度表现，10bp 成本
 
@@ -321,6 +310,5 @@ Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 exp
 - 补充 extreme tilt 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png`
 - 补充 local grid 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png`
 - Vol-matched 与静态 G/D 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
-- Nested walk-forward 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
-- 固定参数后验验证曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png`
+- OOS validation 合并曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
 - 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。

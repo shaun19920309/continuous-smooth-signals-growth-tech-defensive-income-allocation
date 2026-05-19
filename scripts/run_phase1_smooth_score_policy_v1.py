@@ -1339,16 +1339,18 @@ def build_nested_validation(
         return wf, selections, pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), {}
     first_validation_date = pd.to_datetime(wf["date"]).min()
     benchmark_validation = benchmark_common_returns[pd.to_datetime(benchmark_common_returns["date"]) >= first_validation_date].copy()
+    fixed_holdout, fixed_summary, fixed_meta = build_fixed_holdout_validation(supp_common_returns, benchmark_common_returns)
+    validation_returns = pd.concat([wf, fixed_holdout], ignore_index=True)
     labels = {
         "Smooth Score WF Expanding": "walk_forward_expanding",
         "Smooth Score WF Rolling": "walk_forward_rolling",
+        "Fixed Parameter": "fixed_earliest_window_holdout",
         "50/50 G-D": "benchmark_50_50_gd",
         "100% G": "benchmark_100_g",
         "100% D": "benchmark_100_d",
         "SPY": "benchmark_spy",
     }
-    summary = summarize_validation_returns(wf, benchmark_validation, labels, cost_bps=10)
-    fixed_holdout, fixed_summary, fixed_meta = build_fixed_holdout_validation(supp_common_returns, benchmark_common_returns)
+    summary = summarize_validation_returns(validation_returns, benchmark_validation, labels, cost_bps=10)
     return wf, selections, summary, fixed_holdout, fixed_summary, fixed_meta
 
 
@@ -1356,7 +1358,7 @@ def build_validation_equity_curves(
     wf_returns: pd.DataFrame,
     fixed_holdout: pd.DataFrame,
     benchmark_returns: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     def curve_from_group(group: pd.DataFrame, label: str) -> pd.DataFrame:
         group = group.copy()
         group["date"] = pd.to_datetime(group["date"])
@@ -1366,63 +1368,41 @@ def build_validation_equity_curves(
             wealth = wealth / wealth.iloc[0]
         return pd.DataFrame({"date": group["date"], label: wealth})
 
-    wf_curves: list[pd.DataFrame] = []
+    curves: list[pd.DataFrame] = []
     for method, label in [
         ("walk_forward_expanding", "WF Expanding"),
         ("walk_forward_rolling", "WF Rolling"),
     ]:
         group = wf_returns[wf_returns["validation_method"] == method]
         if not group.empty:
-            wf_curves.append(curve_from_group(group, label))
-    if wf_curves:
-        start = min(pd.to_datetime(c["date"]).min() for c in wf_curves)
-        for method, label in [
-            ("benchmark_50_50_gd", "50/50 G-D"),
-            ("benchmark_100_g", "100% G"),
-            ("benchmark_100_d", "100% D"),
-            ("benchmark_spy", "SPY"),
-        ]:
-            group = benchmark_returns[
-                (benchmark_returns["method"] == method)
-                & (benchmark_returns["config_id"] == method)
-                & (benchmark_returns["cost_bps"] == 10)
-                & (pd.to_datetime(benchmark_returns["date"]) >= start)
-            ]
-            wf_curves.append(curve_from_group(group, label))
-        wf_equity = wf_curves[0]
-        for curve in wf_curves[1:]:
-            wf_equity = wf_equity.merge(curve, on="date", how="outer")
-        wf_equity = align_and_rebase_equity(wf_equity)
-    else:
-        wf_equity = pd.DataFrame()
-
-    holdout_curves: list[pd.DataFrame] = []
+            curves.append(curve_from_group(group, label))
     if not fixed_holdout.empty:
-        start = pd.to_datetime(fixed_holdout["date"]).min()
-        holdout_curves.append(curve_from_group(fixed_holdout, "Fixed Parameter Holdout"))
-        for method, label in [
-            ("benchmark_50_50_gd", "50/50 G-D"),
-            ("benchmark_100_g", "100% G"),
-            ("benchmark_100_d", "100% D"),
-            ("benchmark_spy", "SPY"),
-        ]:
-            group = benchmark_returns[
-                (benchmark_returns["method"] == method)
-                & (benchmark_returns["config_id"] == method)
-                & (benchmark_returns["cost_bps"] == 10)
-                & (pd.to_datetime(benchmark_returns["date"]) >= start)
-            ]
-            holdout_curves.append(curve_from_group(group, label))
-        holdout_equity = holdout_curves[0]
-        for curve in holdout_curves[1:]:
-            holdout_equity = holdout_equity.merge(curve, on="date", how="outer")
-        holdout_equity = align_and_rebase_equity(holdout_equity)
-    else:
-        holdout_equity = pd.DataFrame()
-    return wf_equity, holdout_equity
+        curves.append(curve_from_group(fixed_holdout, "Fixed Parameter"))
+    if not curves:
+        return pd.DataFrame()
+
+    start = min(pd.to_datetime(c["date"]).min() for c in curves)
+    for method, label in [
+        ("benchmark_50_50_gd", "50/50 G-D"),
+        ("benchmark_100_g", "100% G"),
+        ("benchmark_100_d", "100% D"),
+        ("benchmark_spy", "SPY"),
+    ]:
+        group = benchmark_returns[
+            (benchmark_returns["method"] == method)
+            & (benchmark_returns["config_id"] == method)
+            & (benchmark_returns["cost_bps"] == 10)
+            & (pd.to_datetime(benchmark_returns["date"]) >= start)
+        ]
+        curves.append(curve_from_group(group, label))
+
+    equity = curves[0]
+    for curve in curves[1:]:
+        equity = equity.merge(curve, on="date", how="outer")
+    return align_and_rebase_equity(equity)
 
 
-def plot_validation_equity_curves(wf_equity: pd.DataFrame, holdout_equity: pd.DataFrame) -> dict[str, Path]:
+def plot_validation_equity_curves(validation_equity: pd.DataFrame) -> dict[str, Path]:
     os.environ.setdefault("MPLCONFIGDIR", str(PLOT_DIR / ".matplotlib"))
     import matplotlib
 
@@ -1450,14 +1430,13 @@ def plot_validation_equity_curves(wf_equity: pd.DataFrame, holdout_equity: pd.Da
         fig.savefig(path, dpi=180, bbox_inches="tight")
         plt.close(fig)
 
-    wf_path = PLOT_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.png"
+    validation_path = PLOT_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.png"
     holdout_path = PLOT_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png"
-    draw(wf_equity, "Nested Walk-Forward Validation, 10bp Cost", wf_path)
-    draw(holdout_equity, "Fixed Parameter Holdout Validation, 10bp Cost", holdout_path)
-    if wf_path.exists():
-        paths["walk_forward"] = wf_path
+    draw(validation_equity, "Walk-Forward and Fixed-Parameter Validation, 10bp Cost", validation_path)
     if holdout_path.exists():
-        paths["fixed_holdout"] = holdout_path
+        holdout_path.unlink()
+    if validation_path.exists():
+        paths["walk_forward"] = validation_path
     return paths
 
 
@@ -1852,13 +1831,21 @@ def write_report(
             vol_static_plot_paths["vol_matched_static"],
             TABLE_DIR / "smooth_score_policy_v1_vol_matched_static_equity_curves.csv",
         )
-    lines.append("## 9. Nested / Walk-Forward 与固定参数后验验证")
+    lines.append("## 9. OOS Validation：Expanding、Rolling 与固定参数")
     lines.append("")
-    lines.append("Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 expanded local grid 候选集中重新选择参数；候选集包含不同 `max_tilt`、`lambda`、`tau` 和 `eta`。固定参数后验验证则使用最早完整 smooth score 样本中的首个训练窗口选参，然后从下一交易日开始固定该配置验证。")
-    lines.append(f"- 最小训练窗口：`{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日。")
-    lines.append(f"- Walk-forward 测试块：`{VALIDATION_TEST_BLOCK}` 个交易日。")
+    lines.append("这一节把 `WF Expanding`、`WF Rolling` 和 `Fixed Parameter` 合并到同一张 OOS 表、同一张资金曲线中，交易期完全对齐。它们都只在过去窗口内选择参数，然后部署到之后的测试期。")
     lines.append("")
-    lines.append("### 9.1 Nested Walk-Forward")
+    lines.append("- 候选参数池：expanded local grid，即 `alpha ∈ {0.50,0.67}`、`lambda_stress ∈ {0.25,0.50}`、`lambda_crowded ∈ {0.05,0.15,0.25}`、`max_tilt ∈ {20%,30%,40%,50%}`、`tau_weight ∈ {0.75,1.0,1.5}`、`eta ∈ {0.03,0.05,0.10}`。")
+    lines.append(f"- 初始训练窗口：`{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日；测试块长度：`{VALIDATION_TEST_BLOCK}` 个交易日。")
+    lines.append("- 参数选择指标：`selection_score`，等权平均 Sharpe、Calmar、CAGR、max drawdown 排名和低 turnover 排名。")
+    lines.append("- `WF Expanding`：每个测试块前，使用从最早可用日期到测试块前一日的全部历史重新选参。")
+    lines.append(f"- `WF Rolling`：每个测试块前，只使用最近 `{VALIDATION_INITIAL_TRAIN_WINDOW}` 个交易日重新选参。")
+    if fixed_holdout_meta:
+        lines.append(
+            f"- `Fixed Parameter`：只用最早训练窗口 `{fixed_holdout_meta.get('calibration_start')}` 到 "
+            f"`{fixed_holdout_meta.get('calibration_end')}` 选参一次，从 `{fixed_holdout_meta.get('holdout_start')}` 开始固定该配置交易。"
+        )
+        lines.append(f"- Fixed Parameter 选中配置：`{fixed_holdout_meta.get('selected_config_id')}`。")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1896,49 +1883,9 @@ def write_report(
     if validation_plot_paths.get("walk_forward"):
         append_figure_with_span(
             lines,
-            "Nested Walk-Forward 资金曲线",
+            "OOS Validation 资金曲线",
             validation_plot_paths["walk_forward"],
             TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv",
-        )
-    lines.append("### 9.2 固定参数后验外样本验证")
-    lines.append("")
-    if fixed_holdout_meta:
-        lines.append(
-            f"- 参数选择期：`{fixed_holdout_meta.get('calibration_start')}` 到 `{fixed_holdout_meta.get('calibration_end')}`；"
-            f"后验验证期从 `{fixed_holdout_meta.get('holdout_start')}` 开始；"
-            f"训练窗口 `{fixed_holdout_meta.get('initial_train_window')}` 个交易日。"
-        )
-        lines.append(f"- 固定参数配置：`{fixed_holdout_meta.get('selected_config_id')}`")
-        lines.append("")
-    lines.extend(
-        markdown_table(
-            fixed_holdout_summary,
-            [
-                "validation_label",
-                "start_date",
-                "end_date",
-                "n_days",
-                "final_wealth",
-                "cagr",
-                "ann_vol",
-                "sharpe",
-                "sortino",
-                "max_drawdown",
-                "calmar",
-                "annual_turnover",
-                "avg_g_weight",
-            ],
-            pct_cols={"cagr", "ann_vol", "max_drawdown", "annual_turnover", "avg_g_weight"},
-            num_cols={"final_wealth", "sharpe", "sortino", "calmar"},
-        )
-    )
-    lines.append("")
-    if validation_plot_paths.get("fixed_holdout"):
-        append_figure_with_span(
-            lines,
-            "固定参数后验验证资金曲线",
-            validation_plot_paths["fixed_holdout"],
-            TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv",
         )
     lines.append("## 10. Score 排序诊断")
     lines.append("")
@@ -1994,8 +1941,7 @@ def write_report(
     lines.append(f"- 补充 extreme tilt 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png'}`")
     lines.append(f"- 补充 local grid 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_supplementary_best_local_equity_curves.png'}`")
     lines.append(f"- Vol-matched 与静态 G/D 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_vol_matched_static_equity_curves.png'}`")
-    lines.append(f"- Nested walk-forward 曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_nested_walk_forward_equity_curves.png'}`")
-    lines.append(f"- 固定参数后验验证曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.png'}`")
+    lines.append(f"- OOS validation 合并曲线图：`{PLOT_DIR / 'smooth_score_policy_v1_nested_walk_forward_equity_curves.png'}`")
     lines.append("- 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。")
     lines.append("")
     report_path.write_text("\n".join(lines), encoding="utf-8")
@@ -2112,12 +2058,12 @@ def main() -> None:
         supp_common_returns,
         benchmark_common_returns,
     )
-    nested_wf_equity_curves, fixed_holdout_equity_curves = build_validation_equity_curves(
+    nested_wf_equity_curves = build_validation_equity_curves(
         nested_wf_returns,
         fixed_holdout_returns,
         benchmark_common_returns,
     )
-    validation_plot_paths = plot_validation_equity_curves(nested_wf_equity_curves, fixed_holdout_equity_curves)
+    validation_plot_paths = plot_validation_equity_curves(nested_wf_equity_curves)
 
     features.to_csv(INPUT_DIR / "smooth_score_policy_v1_feature_panel.csv", index=False, encoding="utf-8-sig")
     pd.concat([trad_configs, bench_configs], ignore_index=True).to_csv(TABLE_DIR / "smooth_score_policy_v1_config_grid.csv", index=False, encoding="utf-8-sig")
@@ -2146,7 +2092,6 @@ def main() -> None:
     fixed_holdout_returns.to_csv(TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_returns.csv", index=False, encoding="utf-8-sig")
     fixed_holdout_summary.to_csv(TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_summary.csv", index=False, encoding="utf-8-sig")
     nested_wf_equity_curves.to_csv(TABLE_DIR / "smooth_score_policy_v1_nested_walk_forward_equity_curves.csv", index=False, encoding="utf-8-sig")
-    fixed_holdout_equity_curves.to_csv(TABLE_DIR / "smooth_score_policy_v1_fixed_parameter_holdout_equity_curves.csv", index=False, encoding="utf-8-sig")
     common_end = pd.to_datetime(common_returns["date"]).max()
     write_report(
         features,
