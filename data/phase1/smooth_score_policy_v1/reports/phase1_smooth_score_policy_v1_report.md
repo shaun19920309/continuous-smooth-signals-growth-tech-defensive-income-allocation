@@ -100,11 +100,13 @@
 
 ## 5. 以 50% tilt 最佳方案为主策略的对齐统计
 
-这一张表从这里开始统一主口径：`Best Local Grid (tilt 50%)` 是后续主策略，`Extreme 50% Tilt` 是固定结构下的 50% tilt 对照，静态 buy-and-hold 作为基础基准。所有方法先对齐到同一可用日期区间。
+这一张表从这里开始统一主口径：`Best Local Grid (tilt 50%)` 是后续主策略；`Matched TNX-only` 与 `Matched Core-only` 使用同样的 `max_tilt/tau/eta` 仓位映射，分别只保留 TNX 或 TNX+drawdown 主轴；`Extreme 50% Tilt` 是固定结构下的 50% tilt 对照。所有方法先对齐到同一可用日期区间。
 
 | display_name | config_id | start_date | end_date | n_days | final_wealth | cagr | ann_vol | sharpe | sortino | max_drawdown | calmar | annual_turnover | avg_g_weight |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Best Local Grid (tilt 50%) | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.71 | 19.24% | 19.29% | 1.01 | 1.22 | -31.63% | 0.61 | 469.67% | 45.06% |
+| Matched TNX-only (tilt 50%) | tnx_tilt0.50_tau0.75_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.23 | 17.80% | 19.33% | 0.94 | 1.13 | -31.31% | 0.57 | 566.69% | 47.48% |
+| Matched Core-only (tilt 50%) | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.25 | 17.84% | 18.94% | 0.96 | 1.15 | -31.98% | 0.56 | 410.19% | 37.18% |
 | Extreme 50% Tilt | extreme_a0.50_ls0.25_lc0.15_tilt0.50_tau1.0_eta0.05 | 2017-06-28 | 2026-05-15 | 2233 | 4.64 | 19.02% | 19.45% | 0.99 | 1.20 | -31.72% | 0.60 | 465.87% | 46.92% |
 | 50/50 G-D Buy & Hold | benchmark_50_50_gd | 2017-06-28 | 2026-05-15 | 2233 | 4.02 | 17.12% | 19.34% | 0.91 | 1.08 | -33.59% | 0.51 | 0.00% | 50.00% |
 | 100% G Buy & Hold | benchmark_100_g | 2017-06-28 | 2026-05-15 | 2233 | 5.49 | 21.34% | 23.53% | 0.94 | 1.17 | -34.35% | 0.62 | 0.00% | 100.00% |
@@ -115,6 +117,8 @@
 
 | comparison | annualized_excess_return | tracking_error | information_ratio | max_dd_diff | turnover_diff |
 | --- | --- | --- | --- | --- | --- |
+| Best Local Grid - matched TNX-only | 1.21% | 2.49% | 0.48 | -0.33% | -97.01% |
+| Best Local Grid - matched Core-only | 1.25% | 1.81% | 0.69 | 0.35% | 59.48% |
 | Best Local Grid - Extreme 50% Tilt | 0.15% | 1.00% | 0.15 | 0.09% | 3.80% |
 | Best Local Grid - 50/50 | 1.78% | 3.74% | 0.48 | 1.95% | 469.67% |
 | Best Local Grid - 100% G | -2.66% | 9.48% | -0.28 | 2.71% | 469.67% |
@@ -122,7 +126,7 @@
 
 ## 7. 资金曲线对比
 
-下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。主策略为 `Best Local Grid (tilt 50%)`。
+下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。第一张图比较 50% tilt 主策略、matched TNX-only、matched Core-only、Extreme 50% 与静态基准；第二张图只显示 buy-and-hold 基础基准。
 
 ![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
@@ -197,6 +201,8 @@ Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 exp
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | -1.01% | 0.17% | 1.00% | 3.32% | 5.48% | 6.48% |
 | supp_extreme_tilt_base | extreme_a0.50_ls0.25_lc0.15_tilt0.50_tau1.0_eta0.05 | -0.35% | -0.04% | 0.51% | 3.63% | 5.22% | 5.57% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 0.04% | 0.66% | 1.90% | 2.52% | 3.86% | 3.82% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 0.02% | -0.25% | 1.16% | 2.48% | 5.57% | 5.56% |
 
 ## 11. 共同起点年度表现，10bp 成本
 
@@ -242,6 +248,26 @@ Walk-forward 没有固定 `max_tilt=50%`。它每次只用过去窗口，在 exp
 | benchmark_spy | benchmark_spy | 2024 | 24.89% | 1.84 | -8.41% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2025 | 17.87% | 0.94 | -18.76% | 0.00% |  |
 | benchmark_spy | benchmark_spy | 2026 | 25.50% | 1.72 | -8.88% | 0.00% |  |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2017 | 24.62% | 3.41 | -2.23% | 223.97% | 21.50% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2018 | -4.75% | -0.21 | -18.82% | 324.05% | 27.34% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2019 | 31.06% | 2.07 | -7.98% | 464.88% | 45.96% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2020 | 25.26% | 0.83 | -31.98% | 367.05% | 44.98% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2021 | 31.97% | 2.27 | -4.63% | 272.40% | 24.44% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2022 | -9.75% | -0.32 | -18.00% | 575.01% | 39.97% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2023 | 29.48% | 1.96 | -9.78% | 529.94% | 46.38% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2024 | 20.27% | 1.50 | -8.42% | 474.91% | 37.59% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2025 | 18.97% | 0.99 | -19.46% | 395.83% | 41.63% |
+| matched_smooth_core_only | core_a0.50_tilt0.50_tau0.75_eta0.05 | 2026 | 32.95% | 2.50 | -6.99% | 340.03% | 29.60% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2017 | 24.46% | 3.09 | -2.09% | 521.29% | 45.65% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2018 | -4.59% | -0.18 | -19.10% | 535.32% | 40.13% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2019 | 33.86% | 2.12 | -8.51% | 539.48% | 64.13% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2020 | 28.68% | 0.90 | -31.31% | 452.96% | 52.81% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2021 | 32.68% | 2.27 | -4.65% | 482.33% | 39.88% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2022 | -11.01% | -0.41 | -19.47% | 676.21% | 31.32% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2023 | 24.41% | 1.71 | -9.88% | 679.66% | 41.98% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2024 | 21.41% | 1.40 | -10.83% | 643.51% | 54.16% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2025 | 17.51% | 0.89 | -21.11% | 549.67% | 57.27% |
+| matched_smooth_tnx_only | tnx_tilt0.50_tau0.75_eta0.05 | 2026 | 32.67% | 2.25 | -7.52% | 564.32% | 44.80% |
 | supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | 2017 | 23.19% | 2.92 | -2.03% | 656.03% | 47.83% |
 | supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | 2018 | -3.33% | -0.09 | -19.60% | 604.88% | 56.09% |
 | supp_expanded_local_grid | local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05 | 2019 | 35.12% | 2.17 | -8.38% | 533.41% | 64.38% |

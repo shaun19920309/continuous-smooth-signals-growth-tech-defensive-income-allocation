@@ -268,6 +268,43 @@ def static_benchmark_signals(features: pd.DataFrame) -> pd.DataFrame:
     return pd.concat(rows, ignore_index=True)
 
 
+def matched_smooth_baseline_signals(
+    features: pd.DataFrame,
+    alpha: float,
+    max_tilt: float,
+    tau_weight: float,
+    eta: float,
+) -> pd.DataFrame:
+    """Build TNX-only and core-only baselines with the selected local-grid mapping parameters."""
+    rows = []
+    specs = [
+        (
+            "matched_smooth_tnx_only",
+            f"tnx_tilt{max_tilt:.2f}_tau{tau_weight:.2f}_eta{eta:.2f}",
+            features["r"],
+        ),
+        (
+            "matched_smooth_core_only",
+            f"core_a{alpha:.2f}_tilt{max_tilt:.2f}_tau{tau_weight:.2f}_eta{eta:.2f}",
+            alpha * features["r"] + (1 - alpha) * features["d"],
+        ),
+    ]
+    for method, config_id, raw_score in specs:
+        rows.append(
+            pd.DataFrame(
+                {
+                    "date": features["date"],
+                    "method": method,
+                    "config_id": config_id,
+                    "g_weight_signal": smooth_weight_from_score(raw_score, max_tilt, tau_weight, eta),
+                    "score": raw_score,
+                    "score_z": expanding_z(raw_score),
+                }
+            )
+        )
+    return pd.concat(rows, ignore_index=True)
+
+
 def build_traditional_score(features: pd.DataFrame, alpha: float, lambda_stress: float, lambda_crowded: float) -> pd.Series:
     stress = 0.5 * features["z_i1"] + 0.5 * features["z_i2"]
     crowded = 0.5 * features["z_i3"] + 0.5 * features["z_i4"]
@@ -577,6 +614,8 @@ def build_equity_curves(
 ) -> pd.DataFrame:
     labels = {
         "best_local_grid": "Best Local Grid (tilt 50%)",
+        "matched_tnx_only": "Matched TNX-only (tilt 50%)",
+        "matched_core_only": "Matched Core-only (tilt 50%)",
         "extreme_50_tilt": "Extreme 50% Tilt",
         "traditional_smooth_score": "Traditional Smooth Score",
         "smooth_tnx_only": "Smooth TNX-only",
@@ -638,6 +677,8 @@ def selected_method_summary(
 ) -> pd.DataFrame:
     labels = {
         "best_local_grid": "Best Local Grid (tilt 50%)",
+        "matched_tnx_only": "Matched TNX-only (tilt 50%)",
+        "matched_core_only": "Matched Core-only (tilt 50%)",
         "extreme_50_tilt": "Extreme 50% Tilt",
         "traditional_smooth_score": "Traditional Smooth Score",
         "smooth_tnx_only": "Smooth TNX-only",
@@ -943,9 +984,10 @@ def plot_equity_curves(equity: pd.DataFrame) -> dict[str, Path]:
 
     draw(
         [
-            "Traditional Smooth Score",
-            "Smooth TNX-only",
-            "Smooth Core-only",
+            "Best Local Grid (tilt 50%)",
+            "Matched TNX-only (tilt 50%)",
+            "Matched Core-only (tilt 50%)",
+            "Extreme 50% Tilt",
             "50/50 G-D Buy & Hold",
             "100% G Buy & Hold",
             "100% D Buy & Hold",
@@ -1705,7 +1747,7 @@ def write_report(
         )
     lines.append("## 5. 以 50% tilt 最佳方案为主策略的对齐统计")
     lines.append("")
-    lines.append("这一张表从这里开始统一主口径：`Best Local Grid (tilt 50%)` 是后续主策略，`Extreme 50% Tilt` 是固定结构下的 50% tilt 对照，静态 buy-and-hold 作为基础基准。所有方法先对齐到同一可用日期区间。")
+    lines.append("这一张表从这里开始统一主口径：`Best Local Grid (tilt 50%)` 是后续主策略；`Matched TNX-only` 与 `Matched Core-only` 使用同样的 `max_tilt/tau/eta` 仓位映射，分别只保留 TNX 或 TNX+drawdown 主轴；`Extreme 50% Tilt` 是固定结构下的 50% tilt 对照。所有方法先对齐到同一可用日期区间。")
     lines.append("")
     lines.extend(
         markdown_table(
@@ -1744,7 +1786,7 @@ def write_report(
     lines.append("")
     lines.append("## 7. 资金曲线对比")
     lines.append("")
-    lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。同一张图中的所有方法开始交易时间完全一致。主策略为 `Best Local Grid (tilt 50%)`。")
+    lines.append("下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。第一张图比较 50% tilt 主策略、matched TNX-only、matched Core-only、Extreme 50% 与静态基准；第二张图只显示 buy-and-hold 基础基准。")
     lines.append("")
     if plot_paths.get("all_methods"):
         append_figure_with_span(
@@ -1984,7 +2026,6 @@ def main() -> None:
         pd.concat([supp_common_returns, benchmark_common_returns], ignore_index=True),
     )
     supp_summary = supp_summary.merge(supp_configs, on=["method", "config_id"], how="left")
-    combined_common_returns = pd.concat([common_returns, supp_common_returns], ignore_index=True)
 
     best_local = (
         supp_summary[(supp_summary["cost_bps"] == 10) & (supp_summary["method"] == "supp_expanded_local_grid")]
@@ -1992,6 +2033,22 @@ def main() -> None:
         .iloc[0]
     )
     best_local_config = str(best_local["config_id"])
+    selected_alpha = float(best_local["alpha"])
+    selected_max_tilt = float(best_local["max_tilt"])
+    selected_tau_weight = float(best_local["tau_weight"])
+    selected_eta = float(best_local["eta"])
+    matched_signals = matched_smooth_baseline_signals(
+        features,
+        alpha=selected_alpha,
+        max_tilt=selected_max_tilt,
+        tau_weight=selected_tau_weight,
+        eta=selected_eta,
+    )
+    matched_returns = build_strategy_returns(features, matched_signals)
+    matched_common_returns = matched_returns[pd.to_datetime(matched_returns["date"]) >= common_start].copy()
+    combined_common_returns = pd.concat([common_returns, supp_common_returns, matched_common_returns], ignore_index=True)
+    matched_tnx_config = f"tnx_tilt{selected_max_tilt:.2f}_tau{selected_tau_weight:.2f}_eta{selected_eta:.2f}"
+    matched_core_config = f"core_a{selected_alpha:.2f}_tilt{selected_max_tilt:.2f}_tau{selected_tau_weight:.2f}_eta{selected_eta:.2f}"
     extreme_50 = supp_summary[
         (supp_summary["cost_bps"] == 10)
         & (supp_summary["method"] == "supp_extreme_tilt_base")
@@ -1999,20 +2056,10 @@ def main() -> None:
     ].iloc[0]
     extreme_50_config = str(extreme_50["config_id"])
 
-    best_trad = common_metrics[(common_metrics["cost_bps"] == 10) & (common_metrics["method"] == "traditional_smooth_score")].sort_values("selection_score", ascending=False).iloc[0]
-
-    # Matched smooth baselines for the selected traditional config.
-    trad_config = best_trad["config_id"]
-    # Parse by robust substring matching.
-    alpha = 0.67 if "_a0.67_" in trad_config else 0.50
-    max_tilt = 0.20 if "_tilt0.20_" in trad_config else 0.10
-    tau_weight = 1.5 if "_tau1.5_" in trad_config else 1.0
-    eta = 0.15 if "_eta0.15" in trad_config else 0.05
-    matched_tnx = f"tnx_tilt{max_tilt:.2f}_tau{tau_weight:.1f}_eta{eta:.2f}"
-    matched_core = f"core_a{alpha:.2f}_tilt{max_tilt:.2f}_tau{tau_weight:.1f}_eta{eta:.2f}"
-
     selected = {
         "best_local_grid": ("supp_expanded_local_grid", best_local_config),
+        "matched_tnx_only": ("matched_smooth_tnx_only", matched_tnx_config),
+        "matched_core_only": ("matched_smooth_core_only", matched_core_config),
         "extreme_50_tilt": ("supp_extreme_tilt_base", extreme_50_config),
         "benchmark_50_50_gd": ("benchmark_50_50_gd", "benchmark_50_50_gd"),
         "benchmark_100_g": ("benchmark_100_g", "benchmark_100_g"),
@@ -2021,6 +2068,8 @@ def main() -> None:
     }
     comparisons = []
     for args in [
+        (selected["best_local_grid"], selected["matched_tnx_only"], "Best Local Grid - matched TNX-only"),
+        (selected["best_local_grid"], selected["matched_core_only"], "Best Local Grid - matched Core-only"),
         (selected["best_local_grid"], selected["extreme_50_tilt"], "Best Local Grid - Extreme 50% Tilt"),
         (selected["best_local_grid"], selected["benchmark_50_50_gd"], "Best Local Grid - 50/50"),
         (selected["best_local_grid"], selected["benchmark_100_g"], "Best Local Grid - 100% G"),
@@ -2036,11 +2085,11 @@ def main() -> None:
     equity_end = pd.to_datetime(equity_curves["date"]).max() if not equity_curves.empty else pd.to_datetime(combined_common_returns["date"]).max()
     selected_keys = set(selected.values())
     yearly = yearly_metrics(combined_common_returns, selected_keys, start_date=equity_start, end_date=equity_end)
-    all_signals = pd.concat([signals, supp_signals], ignore_index=True)
+    all_signals = pd.concat([signals, supp_signals, matched_signals], ignore_index=True)
     score_diag = score_diagnostics(
         features,
         all_signals,
-        {selected["best_local_grid"], selected["extreme_50_tilt"]},
+        {selected["best_local_grid"], selected["matched_tnx_only"], selected["matched_core_only"], selected["extreme_50_tilt"]},
         start_date=equity_start,
     )
     plot_paths = plot_equity_curves(equity_curves)
