@@ -107,11 +107,11 @@ R_i,t - R_f,t
 
 For `G-D`, the dependent variable is `R_G,t - R_D,t`.
 
-| portfolio | n | alpha ann. | alpha t(NW) | MKT | HML | RMW | CMA | MOM | adj R2 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| G | 2330 | 2.24% | 1.51 | 1.148 | -0.298 | 0.067 | -0.071 | 0.041 | 0.965 |
-| D | 2330 | 0.29% | 0.24 | 0.874 | 0.254 | 0.088 | 0.227 | -0.076 | 0.950 |
-| G-D | 2330 | 1.95% | 0.81 | 0.273 | -0.552 | -0.021 | -0.298 | 0.117 | 0.757 |
+| portfolio | n | alpha ann. | alpha t(NW) | MKT | SMB | HML | RMW | CMA | MOM | adj R2 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| G | 2330 | 2.24% | 1.51 | 1.148 | -0.118 | -0.298 | 0.067 | -0.071 | 0.041 | 0.965 |
+| D | 2330 | 0.29% | 0.24 | 0.874 | 0.019 | 0.254 | 0.088 | 0.227 | -0.076 | 0.950 |
+| G-D | 2330 | 1.95% | 0.81 | 0.273 | -0.137 | -0.552 | -0.021 | -0.298 | 0.117 | 0.757 |
 
 Full table:
 
@@ -122,6 +122,7 @@ Full table:
 The full-sample `G-D` regression gives a clear answer:
 
 - `MKT beta = 0.273`, Newey-West t-stat around `11.24`: `G-D` is positively exposed to market risk.
+- `SMB beta = -0.137`, Newey-West t-stat around `-5.20`: `G-D` has a mild large-cap tilt.
 - `HML beta = -0.552`, Newey-West t-stat around `-20.01`: `G-D` is strongly long growth and short value/dividend exposure.
 - `MOM beta = 0.117`, Newey-West t-stat around `8.80`: `G-D` is positively related to momentum.
 - `CMA beta = -0.298`: the portfolio tilts toward aggressive investment/growth characteristics relative to the defensive basket.
@@ -131,18 +132,18 @@ Therefore, `G-D` should not be presented as a newly discovered independent alpha
 
 ### 3.6 Single-ETF Factor Exposures
 
-| ETF | group | n | alpha ann. | alpha t(NW) | MKT | HML | RMW | CMA | MOM | adj R2 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| QQQ | G | 4995 | 3.57% | 2.76 | 1.078 | -0.312 | 0.014 | -0.216 | 0.039 | 0.924 |
-| XLK | G | 3580 | 1.86% | 1.06 | 1.193 | -0.316 | 0.133 | -0.048 | 0.051 | 0.907 |
-| VGT | G | 3580 | 2.77% | 1.61 | 1.190 | -0.329 | 0.060 | -0.118 | 0.050 | 0.916 |
-| SPYG | G | 3580 | 0.03% | 0.04 | 1.056 | -0.213 | 0.086 | -0.077 | 0.037 | 0.967 |
-| VUG | G | 3580 | 0.28% | 0.37 | 1.076 | -0.265 | 0.029 | -0.146 | 0.006 | 0.977 |
-| SCHD | D | 3580 | 0.02% | 0.02 | 0.848 | 0.183 | 0.233 | 0.271 | -0.081 | 0.875 |
-| VYM | D | 3580 | -0.88% | -0.87 | 0.862 | 0.259 | 0.081 | 0.238 | -0.033 | 0.927 |
-| VTV | D | 3580 | -0.73% | -0.77 | 0.887 | 0.304 | 0.034 | 0.185 | -0.037 | 0.943 |
-| FDVV | D | 2397 | -0.25% | -0.18 | 0.883 | 0.229 | 0.048 | 0.182 | -0.068 | 0.932 |
-| COWZ | D | 2330 | 1.48% | 0.71 | 0.934 | 0.223 | 0.150 | 0.224 | -0.112 | 0.880 |
+| ETF | group | n | alpha ann. | alpha t(NW) | MKT | SMB | HML | RMW | CMA | MOM | adj R2 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| QQQ | G | 4995 | 3.57% | 2.76 | 1.078 | -0.055 | -0.312 | 0.014 | -0.216 | 0.039 | 0.924 |
+| XLK | G | 3580 | 1.86% | 1.06 | 1.193 | -0.156 | -0.316 | 0.133 | -0.048 | 0.051 | 0.907 |
+| VGT | G | 3580 | 2.77% | 1.61 | 1.190 | -0.066 | -0.329 | 0.060 | -0.118 | 0.050 | 0.916 |
+| SPYG | G | 3580 | 0.03% | 0.04 | 1.056 | -0.137 | -0.213 | 0.086 | -0.077 | 0.037 | 0.967 |
+| VUG | G | 3580 | 0.28% | 0.37 | 1.076 | -0.114 | -0.265 | 0.029 | -0.146 | 0.006 | 0.977 |
+| SCHD | D | 3580 | 0.02% | 0.02 | 0.848 | 0.002 | 0.183 | 0.233 | 0.271 | -0.081 | 0.875 |
+| VYM | D | 3580 | -0.88% | -0.87 | 0.862 | -0.056 | 0.259 | 0.081 | 0.238 | -0.033 | 0.927 |
+| VTV | D | 3580 | -0.73% | -0.77 | 0.887 | -0.071 | 0.304 | 0.034 | 0.185 | -0.037 | 0.943 |
+| FDVV | D | 2397 | -0.25% | -0.18 | 0.883 | -0.043 | 0.229 | 0.048 | 0.182 | -0.068 | 0.932 |
+| COWZ | D | 2330 | 1.48% | 0.71 | 0.934 | 0.266 | 0.223 | 0.150 | 0.224 | -0.112 | 0.880 |
 
 The ETF-level results confirm that the `G` basket is consistently growth/technology oriented, while the `D` basket has more value, income, and profitability/investment characteristics.
 
@@ -741,4 +742,3 @@ Or:
 - Vol-matched/static comparison: `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
 - OOS validation: `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
 - Post-2022 validation: `data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_post_2022_validation_equity_curves.png`
-
