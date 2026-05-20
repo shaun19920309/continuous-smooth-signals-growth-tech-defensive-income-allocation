@@ -40,16 +40,23 @@ Or:
 ./reproduce.sh
 ```
 
-## Main Combined Report
+## Main Combined Reports
 
-The single merged report is:
+The English merged report is:
+
+```text
+data/phase1/archive_2016_full/reports/phase1_2016_full_combined_report_en.md
+```
+
+The Chinese merged report is:
 
 ```text
 data/phase1/archive_2016_full/reports/phase1_2016_full_combined_report.md
 ```
 
-It combines the full factor attribution report and the full smooth score policy
-report, with an opening section documenting data lineage and exclusions.
+They combine the full factor attribution report and the full smooth score policy
+report, with an opening section documenting data lineage and exclusions. These
+are research reports, not manuscript or paper files.
 
 ## Directory Layout
 
