@@ -95,8 +95,3 @@ research chain:
   `data/external/fama_french/processed/`.
 - Normalized market index/rate/volatility data under
   `data/external/failed_moomoo_indices/processed/`.
-
-## Paper Entry
-
-The paper entry is reserved under `paper/README.md`. The paper URL, citation,
-DOI, and venue metadata should be added after acceptance.
