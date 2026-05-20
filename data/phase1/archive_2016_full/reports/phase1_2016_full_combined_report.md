@@ -206,13 +206,13 @@
 
 ##### 7. 输出文件
 
-- 回归面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/inputs/phase1_factor_returns_panel.csv`
-- 组合全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_portfolios_full_sample.csv`
-- 单 ETF 全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_etfs_full_sample.csv`
-- 滚动 beta：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_betas.csv`
-- 因子调整 residual 序列：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_factor_adjusted_returns.csv`
-- 滚动 beta 阶段汇总：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_period_summary.csv`
-- 数据覆盖：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv`
+- 回归面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/inputs/phase1_factor_returns_panel.csv`
+- 组合全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_portfolios_full_sample.csv`
+- 单 ETF 全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_etfs_full_sample.csv`
+- 滚动 beta：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_betas.csv`
+- 因子调整 residual 序列：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_factor_adjusted_returns.csv`
+- 滚动 beta 阶段汇总：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_period_summary.csv`
+- 数据覆盖：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv`
 
 
 ### 5.2 Smooth Continuous Score Policy v1
@@ -263,7 +263,7 @@
 - 10bp 主口径下，固定结构里的最佳 `max_tilt` 是 `50%`；CAGR `19.02%`，Sharpe `0.99`，Max DD `-31.72%`。
 - 因此后续主策略比较不再沿用原始 20% tilt 的 `Traditional Smooth Score`，而是转向 50% tilt 体系。
 
-![Supplementary Extreme Tilt 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png)
+![Supplementary Extreme Tilt 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ##### 4. 第二轮：Expanded Local Grid
@@ -314,7 +314,7 @@
 - 后续主策略配置：`local_a0.50_ls0.50_lc0.05_tilt0.50_tau0.75_eta0.05`。
 - 这个配置来自 expanded local grid，且 `max_tilt=50%`。后续所有主对比、vol-matched、静态 G/D 对照都以它作为目标 smooth score。
 
-![Supplementary Best Local Grid 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png)
+![Supplementary Best Local Grid 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ##### 5. 以 50% tilt 最佳方案为主策略的对齐统计
@@ -347,10 +347,10 @@
 
 下面两张图都使用 `10bp` 成本，并先取图内所有曲线的共同可用日期区间，再统一 rebase 到 `1.0`。第一张图比较 50% tilt 主策略、matched TNX-only、matched Core-only、Extreme 50% 与静态基准；第二张图只显示 buy-and-hold 基础基准。
 
-![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
+![共同起点所有方法资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
-![G/D Buy and Hold 基础资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png)
+![G/D Buy and Hold 基础资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 图中 `100% G Buy & Hold` 和 `100% D Buy & Hold` 是单纯买入并持有 G、D 篮子的基础对照；`50/50 G-D Buy & Hold` 是不择时的静态配置基准。
@@ -375,7 +375,7 @@
 | Best Calmar Static G/D (87% G) | best_calmar_static_gd | 87.00% |  | 5.14 | 20.29% | 22.28% | 0.94 | 1.16 | -31.65% | 0.64 | 0.00% | 1.50% | -0.01% |
 | Best CAGR Static G/D under Smooth MaxDD (86% G) | best_cagr_static_under_smooth_maxdd | 86.00% |  | 5.11 | 20.21% | 22.18% | 0.94 | 1.15 | -31.59% | 0.64 | 0.00% | 1.42% | 0.04% |
 
-![Vol-Matched 与静态 G/D 对照资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png)
+![Vol-Matched 与静态 G/D 对照资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png)
 图表时间范围：`2017-06-28` 到 `2026-05-15`。
 
 ##### 9. OOS Validation：Expanding、Rolling 与固定参数
@@ -400,7 +400,7 @@
 | 100% D | 2018-06-28 | 2026-05-15 | 1981 | 2.53 | 12.51% | 18.14% | 0.74 | 0.85 | -36.71% | 0.34 | 0.00% | 0.00% | -6.13% | -3.79% |
 | SPY | 2018-06-28 | 2026-05-15 | 1981 | 3.09 | 15.45% | 19.39% | 0.84 | 0.98 | -33.72% | 0.46 | 0.00% |  | -3.19% | -0.79% |
 
-![OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
+![OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png)
 图表时间范围：`2018-06-28` 到 `2026-05-15`。
 
 ##### 9.1 补充：2022 起始 OOS Validation
@@ -423,7 +423,7 @@
 | 100% D | 2022-01-03 | 2026-05-15 | 1096 | 1.53 | 10.32% | 14.71% | 0.74 | 0.99 | -17.32% | 0.60 | 0.00% | 0.00% | -4.98% | 2.57% |
 | SPY | 2022-01-03 | 2026-05-15 | 1096 | 1.65 | 12.21% | 17.68% | 0.74 | 0.96 | -24.50% | 0.50 | 0.00% |  | -3.09% | -4.61% |
 
-![2022 起始 OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_post_2022_validation_equity_curves.png)
+![2022 起始 OOS Validation 资金曲线](/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_post_2022_validation_equity_curves.png)
 图表时间范围：`2022-01-03` 到 `2026-05-15`。
 
 ##### 10. Score 排序诊断
@@ -522,35 +522,35 @@
 
 ##### 13. 输出文件
 
-- 特征面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/inputs/smooth_score_policy_v1_feature_panel.csv`
-- 信号权重：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_signals.csv`
-- 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_daily_returns.csv`
-- 主策略表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_metrics.csv`
-- 2016 起点主策略表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_metrics.csv`
-- 入选方法与 buy-and-hold 对齐统计：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_selected_summary.csv`
-- 增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_comparisons.csv`
-- 2016 起点增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_comparisons.csv`
-- 年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_yearly_metrics.csv`
-- 共同起点年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_yearly_metrics.csv`
-- score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_score_diagnostics.csv`
-- 2016 起点 score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_score_diagnostics.csv`
-- 共同起点资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv`
-- 补充 extreme/local tilt 配置：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_config_grid.csv`
-- 补充 extreme/local tilt 主表：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_summary.csv`
-- 补充 extreme/local tilt 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_returns.csv`
-- 补充 extreme/local tilt 资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv`
-- Vol-matched 与静态 G/D 对照表：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_comparison.csv`
-- 静态 G/D 权重网格：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_static_gd_grid.csv`
-- Vol-matched 与静态 G/D 资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv`
-- Nested walk-forward 选择记录：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_selections.csv`
-- Nested walk-forward 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_returns.csv`
-- Nested walk-forward 结果：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_summary.csv`
-- 固定参数后验验证日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_returns.csv`
-- 固定参数后验验证结果：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_summary.csv`
-- 所有方法资金曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png`
-- G/D buy-and-hold 基础曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png`
-- 补充 extreme tilt 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png`
-- 补充 local grid 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png`
-- Vol-matched 与静态 G/D 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
-- OOS validation 合并曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
+- 特征面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/inputs/smooth_score_policy_v1_feature_panel.csv`
+- 信号权重：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_signals.csv`
+- 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_daily_returns.csv`
+- 主策略表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_metrics.csv`
+- 2016 起点主策略表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_metrics.csv`
+- 入选方法与 buy-and-hold 对齐统计：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_selected_summary.csv`
+- 增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_comparisons.csv`
+- 2016 起点增量比较：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_comparisons.csv`
+- 年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_yearly_metrics.csv`
+- 共同起点年度表现：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_yearly_metrics.csv`
+- score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_score_diagnostics.csv`
+- 2016 起点 score 诊断：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_score_diagnostics.csv`
+- 共同起点资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv`
+- 补充 extreme/local tilt 配置：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_config_grid.csv`
+- 补充 extreme/local tilt 主表：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_summary.csv`
+- 补充 extreme/local tilt 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_returns.csv`
+- 补充 extreme/local tilt 资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv`
+- Vol-matched 与静态 G/D 对照表：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_comparison.csv`
+- 静态 G/D 权重网格：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_static_gd_grid.csv`
+- Vol-matched 与静态 G/D 资金曲线：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv`
+- Nested walk-forward 选择记录：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_selections.csv`
+- Nested walk-forward 日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_returns.csv`
+- Nested walk-forward 结果：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_nested_walk_forward_summary.csv`
+- 固定参数后验验证日收益：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_returns.csv`
+- 固定参数后验验证结果：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_fixed_parameter_holdout_summary.csv`
+- 所有方法资金曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_equity_curves_all.png`
+- G/D buy-and-hold 基础曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_common_oos_buy_hold_gd.png`
+- 补充 extreme tilt 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png`
+- 补充 local grid 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_supplementary_best_local_equity_curves.png`
+- Vol-matched 与静态 G/D 曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_vol_matched_static_equity_curves.png`
+- OOS validation 合并曲线图：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/smooth_score_policy_v1/plots/smooth_score_policy_v1_nested_walk_forward_equity_curves.png`
 - 所有保留表格与图像的起止日期已汇总到合并归档报告的 artifact date range 索引。

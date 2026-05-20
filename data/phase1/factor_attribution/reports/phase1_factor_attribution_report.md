@@ -99,10 +99,10 @@
 
 ## 7. 输出文件
 
-- 回归面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/inputs/phase1_factor_returns_panel.csv`
-- 组合全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_portfolios_full_sample.csv`
-- 单 ETF 全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_etfs_full_sample.csv`
-- 滚动 beta：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_betas.csv`
-- 因子调整 residual 序列：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_factor_adjusted_returns.csv`
-- 滚动 beta 阶段汇总：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_period_summary.csv`
-- 数据覆盖：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv`
+- 回归面板：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/inputs/phase1_factor_returns_panel.csv`
+- 组合全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_portfolios_full_sample.csv`
+- 单 ETF 全样本回归：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_etfs_full_sample.csv`
+- 滚动 beta：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_betas.csv`
+- 因子调整 residual 序列：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_factor_adjusted_returns.csv`
+- 滚动 beta 阶段汇总：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_rolling_period_summary.csv`
+- 数据覆盖：`/Users/zhelixiong/Desktop/research/doctor/github_package/phase1/phase1_2016_full_archive/data/phase1/factor_attribution/tables/factor_attribution_data_coverage.csv`
