@@ -1,13 +1,23 @@
 # Phase 1 2016 Full Archive
 
 This archive is the cleaned reproducible Phase 1 package requested for the
-2016-start research record.
+2016-start research record. This version also adds the bond/credit-augmented
+extension and the strict incremental test:
 
-It keeps only:
+```text
+Old Best Local structure + bond/credit incremental terms
+```
+
+It keeps:
 
 1. factor attribution (`FF5 + MOM`);
 2. `phase1_smooth_score_policy_v1` and all of the steps reported inside that
-   report.
+   report;
+3. `phase1_bond_credit_augmented_v1`, the diagnostic gate that adds aligned
+   bond/credit variables;
+4. `phase1_bond_credit_smooth_policy_v1`, the deployable policy test including
+   the strict incremental branch that keeps the old Best Local score fixed and
+   only adds credit relief plus `rate relief x credit stress`.
 
 It excludes older exploratory branches such as state sorting, predictive
 regression, old OOS validation, old state-action policy, and all ElasticNet
@@ -22,6 +32,8 @@ experiments.
 - Smooth score features that require `G-D trailing 126d` naturally become
   available after the 126-trading-day warmup. This warmup is retained and
   documented, not treated as a mid-sample cut.
+- Bond/credit smooth policy complete comparison starts on `2017-06-28` after
+  the same natural warmup. The main comparison ends on `2026-05-15`.
 
 ## Reproduce
 
@@ -31,6 +43,8 @@ Run from the repository root:
 python scripts/run_phase1_factor_attribution.py
 python scripts/run_phase1_state_framework_v2.py
 python scripts/run_phase1_smooth_score_policy_v1.py
+python scripts/run_phase1_bond_credit_augmented_v1.py
+python scripts/run_phase1_bond_credit_smooth_policy_v1.py
 python scripts/build_phase1_2016_full_archive_report.py
 ```
 
@@ -46,6 +60,12 @@ The English merged report is:
 
 ```text
 data/phase1/archive_2016_full/reports/phase1_2016_full_combined_report_en.md
+```
+
+The bond/credit extension report is:
+
+```text
+data/phase1/bond_credit_smooth_policy_v1/reports/phase1_bond_credit_smooth_policy_v1_full_report_en.md
 ```
 
 The Chinese merged report is:
@@ -73,6 +93,8 @@ are research reports, not manuscript or paper files.
 │       ├── factor_attribution/
 │       ├── state_framework_v2/
 │       ├── smooth_score_policy_v1/
+│       ├── bond_credit_augmented_v1/
+│       ├── bond_credit_smooth_policy_v1/
 │       └── archive_2016_full/
 ├── requirements.txt
 ├── environment.yml
@@ -102,3 +124,7 @@ research chain:
   `data/external/fama_french/processed/`.
 - Normalized market index/rate/volatility data under
   `data/external/failed_moomoo_indices/processed/`.
+- FRED credit spread files under `data/external/credit_liquidity/raw/fred/`.
+  HY/IG OAS files are included for coverage documentation but excluded from the
+  formal full-window policy tests because they do not align with the 2017-2026
+  policy window.

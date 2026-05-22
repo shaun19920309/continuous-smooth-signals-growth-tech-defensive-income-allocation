@@ -1,0 +1,91 @@
+﻿variable,group,question,expected_sign,active_n_daily_63d
+r_x_d,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × SPY drawdown depth: -z(SPY drawdown),1.0,4984
+r_x_vh,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × High VIX: z(VIX 3Y percentile),1.0,4780
+r_x_vr,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × VIX relief: -z(VIX 21d change),,5010
+r_x_g63,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × G-D trailing 63d relative strength,,2300
+r_x_g126,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × G-D trailing 126d relative strength,,2237
+r_x_cs,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × Credit stress level: z(BAA-10Y spread),1.0,5010
+r_x_ce,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × Credit relief: -z(BAA-10Y spread 21d change),,5010
+r_x_cg,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × Credit quality gap: z(BAA spread - AAA spread),,5010
+r_x_hys,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × HY ETF stress: z(HYG 252d drawdown depth),1.0,3490
+r_x_hyr,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × HY ETF relief: z(HYG/LQD 21d relative return),,3594
+r_x_lqs,1_all_pairwise_directional,Rate relief: -z(10Y yield 21d change) × IG credit stress: z(LQD/SHY 21d weakness),1.0,3594
+d_x_vh,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × High VIX: z(VIX 3Y percentile),,4754
+d_x_vr,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × VIX relief: -z(VIX 21d change),1.0,4984
+d_x_g63,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × G-D trailing 63d relative strength,,2300
+d_x_g126,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × G-D trailing 126d relative strength,,2237
+d_x_cs,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × Credit stress level: z(BAA-10Y spread),,5005
+d_x_ce,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × Credit relief: -z(BAA-10Y spread 21d change),1.0,4984
+d_x_cg,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × Credit quality gap: z(BAA spread - AAA spread),,5005
+d_x_hys,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × HY ETF stress: z(HYG 252d drawdown depth),,3489
+d_x_hyr,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × HY ETF relief: z(HYG/LQD 21d relative return),1.0,3592
+d_x_lqs,1_all_pairwise_directional,SPY drawdown depth: -z(SPY drawdown) × IG credit stress: z(LQD/SHY 21d weakness),,3592
+vh_x_vr,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × VIX relief: -z(VIX 21d change),1.0,4780
+vh_x_g63,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × G-D trailing 63d relative strength,,2300
+vh_x_g126,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × G-D trailing 126d relative strength,,2237
+vh_x_cs,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × Credit stress level: z(BAA-10Y spread),,4780
+vh_x_ce,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × Credit relief: -z(BAA-10Y spread 21d change),1.0,4780
+vh_x_cg,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × Credit quality gap: z(BAA spread - AAA spread),,4780
+vh_x_hys,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × HY ETF stress: z(HYG 252d drawdown depth),,3490
+vh_x_hyr,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × HY ETF relief: z(HYG/LQD 21d relative return),1.0,3594
+vh_x_lqs,1_all_pairwise_directional,High VIX: z(VIX 3Y percentile) × IG credit stress: z(LQD/SHY 21d weakness),,3594
+vr_x_g63,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × G-D trailing 63d relative strength,,2300
+vr_x_g126,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × G-D trailing 126d relative strength,,2237
+vr_x_cs,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × Credit stress level: z(BAA-10Y spread),1.0,5010
+vr_x_ce,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × Credit relief: -z(BAA-10Y spread 21d change),,5010
+vr_x_cg,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × Credit quality gap: z(BAA spread - AAA spread),,5010
+vr_x_hys,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × HY ETF stress: z(HYG 252d drawdown depth),1.0,3490
+vr_x_hyr,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × HY ETF relief: z(HYG/LQD 21d relative return),,3594
+vr_x_lqs,1_all_pairwise_directional,VIX relief: -z(VIX 21d change) × IG credit stress: z(LQD/SHY 21d weakness),1.0,3594
+g63_x_g126,1_all_pairwise_directional,G-D trailing 63d relative strength × G-D trailing 126d relative strength,,2237
+g63_x_cs,1_all_pairwise_directional,G-D trailing 63d relative strength × Credit stress level: z(BAA-10Y spread),,2300
+g63_x_ce,1_all_pairwise_directional,G-D trailing 63d relative strength × Credit relief: -z(BAA-10Y spread 21d change),,2300
+g63_x_cg,1_all_pairwise_directional,G-D trailing 63d relative strength × Credit quality gap: z(BAA spread - AAA spread),,2300
+g63_x_hys,1_all_pairwise_directional,G-D trailing 63d relative strength × HY ETF stress: z(HYG 252d drawdown depth),,2300
+g63_x_hyr,1_all_pairwise_directional,G-D trailing 63d relative strength × HY ETF relief: z(HYG/LQD 21d relative return),,2300
+g63_x_lqs,1_all_pairwise_directional,G-D trailing 63d relative strength × IG credit stress: z(LQD/SHY 21d weakness),,2300
+g126_x_cs,1_all_pairwise_directional,G-D trailing 126d relative strength × Credit stress level: z(BAA-10Y spread),,2237
+g126_x_ce,1_all_pairwise_directional,G-D trailing 126d relative strength × Credit relief: -z(BAA-10Y spread 21d change),,2237
+g126_x_cg,1_all_pairwise_directional,G-D trailing 126d relative strength × Credit quality gap: z(BAA spread - AAA spread),,2237
+g126_x_hys,1_all_pairwise_directional,G-D trailing 126d relative strength × HY ETF stress: z(HYG 252d drawdown depth),,2237
+g126_x_hyr,1_all_pairwise_directional,G-D trailing 126d relative strength × HY ETF relief: z(HYG/LQD 21d relative return),,2237
+g126_x_lqs,1_all_pairwise_directional,G-D trailing 126d relative strength × IG credit stress: z(LQD/SHY 21d weakness),,2237
+cs_x_ce,1_all_pairwise_directional,Credit stress level: z(BAA-10Y spread) × Credit relief: -z(BAA-10Y spread 21d change),1.0,5010
+cs_x_cg,1_all_pairwise_directional,Credit stress level: z(BAA-10Y spread) × Credit quality gap: z(BAA spread - AAA spread),,5031
+cs_x_hys,1_all_pairwise_directional,Credit stress level: z(BAA-10Y spread) × HY ETF stress: z(HYG 252d drawdown depth),,3490
+cs_x_hyr,1_all_pairwise_directional,Credit stress level: z(BAA-10Y spread) × HY ETF relief: z(HYG/LQD 21d relative return),1.0,3594
+cs_x_lqs,1_all_pairwise_directional,Credit stress level: z(BAA-10Y spread) × IG credit stress: z(LQD/SHY 21d weakness),,3594
+ce_x_cg,1_all_pairwise_directional,Credit relief: -z(BAA-10Y spread 21d change) × Credit quality gap: z(BAA spread - AAA spread),,5010
+ce_x_hys,1_all_pairwise_directional,Credit relief: -z(BAA-10Y spread 21d change) × HY ETF stress: z(HYG 252d drawdown depth),1.0,3490
+ce_x_hyr,1_all_pairwise_directional,Credit relief: -z(BAA-10Y spread 21d change) × HY ETF relief: z(HYG/LQD 21d relative return),,3594
+ce_x_lqs,1_all_pairwise_directional,Credit relief: -z(BAA-10Y spread 21d change) × IG credit stress: z(LQD/SHY 21d weakness),1.0,3594
+cg_x_hys,1_all_pairwise_directional,Credit quality gap: z(BAA spread - AAA spread) × HY ETF stress: z(HYG 252d drawdown depth),,3490
+cg_x_hyr,1_all_pairwise_directional,Credit quality gap: z(BAA spread - AAA spread) × HY ETF relief: z(HYG/LQD 21d relative return),,3594
+cg_x_lqs,1_all_pairwise_directional,Credit quality gap: z(BAA spread - AAA spread) × IG credit stress: z(LQD/SHY 21d weakness),,3594
+hys_x_hyr,1_all_pairwise_directional,HY ETF stress: z(HYG 252d drawdown depth) × HY ETF relief: z(HYG/LQD 21d relative return),1.0,3490
+hys_x_lqs,1_all_pairwise_directional,HY ETF stress: z(HYG 252d drawdown depth) × IG credit stress: z(LQD/SHY 21d weakness),,3490
+hyr_x_lqs,1_all_pairwise_directional,HY ETF relief: z(HYG/LQD 21d relative return) × IG credit stress: z(LQD/SHY 21d weakness),1.0,3594
+credit_stress_pos_x_credit_relief_pos,2_positive_part_bond_credit,High credit spread with credit-spread tightening,1.0,1112
+credit_stress_pos_x_vix_relief_pos,2_positive_part_bond_credit,Credit stress with volatility relief,1.0,1231
+credit_stress_pos_x_rate_relief_pos,2_positive_part_bond_credit,Credit stress with rate relief,1.0,1125
+credit_stress_pos_x_drawdown_pos,2_positive_part_bond_credit,Credit stress inside market drawdown,,1280
+hy_stress_pos_x_hy_relief_pos,2_positive_part_bond_credit,HY stress with HY/LQD relief,1.0,439
+hy_stress_pos_x_vix_relief_pos,2_positive_part_bond_credit,HY stress with VIX relief,1.0,456
+hy_stress_pos_x_rate_relief_pos,2_positive_part_bond_credit,HY stress with rate relief,1.0,503
+ig_stress_pos_x_vix_relief_pos,2_positive_part_bond_credit,IG stress with volatility relief,1.0,377
+credit_widening_pos_x_vix_spike_pos,2_positive_part_bond_credit,Credit widening with VIX spike,-1.0,1330
+credit_widening_pos_x_rate_headwind_pos,2_positive_part_bond_credit,Credit widening with rate headwind,-1.0,706
+growth_ext_pos_x_credit_stress_pos,2_positive_part_bond_credit,Growth extended in credit stress,-1.0,176
+growth_ext_pos_x_hy_stress_pos,2_positive_part_bond_credit,Growth extended in HY stress,-1.0,156
+growth_weak_pos_x_credit_relief_pos,2_positive_part_bond_credit,Weak growth with credit relief,1.0,632
+growth_weak_pos_x_hy_relief_pos,2_positive_part_bond_credit,Weak growth with HY relief,1.0,581
+drawdown_pos_x_credit_stress_pos_x_vix_relief_pos,3_three_way_bond_credit,Drawdown × credit stress × VIX relief,1.0,732
+drawdown_pos_x_credit_stress_pos_x_rate_relief_pos,3_three_way_bond_credit,Drawdown × credit stress × rate relief,1.0,745
+high_vix_pos_x_credit_stress_pos_x_vix_relief_pos,3_three_way_bond_credit,High VIX × credit stress × VIX relief,1.0,541
+credit_stress_pos_x_credit_relief_pos_x_rate_relief_pos,3_three_way_bond_credit,Credit stress × credit relief × rate relief,1.0,367
+hy_stress_pos_x_hy_relief_pos_x_vix_relief_pos,3_three_way_bond_credit,HY stress × HY relief × VIX relief,1.0,233
+credit_widening_pos_x_vix_spike_pos_x_rate_headwind_pos,3_three_way_bond_credit,Credit widening × VIX spike × rate headwind,-1.0,373
+growth_ext_pos_x_credit_stress_pos_x_rate_headwind_pos,3_three_way_bond_credit,Growth extended × credit stress × rate headwind,-1.0,93
+growth_ext_pos_x_hy_stress_pos_x_vix_spike_pos,3_three_way_bond_credit,Growth extended × HY stress × VIX spike,-1.0,94
+growth_weak_pos_x_credit_relief_pos_x_vix_relief_pos,3_three_way_bond_credit,Growth weak × credit relief × VIX relief,1.0,400
+growth_weak_pos_x_hy_relief_pos_x_rate_relief_pos,3_three_way_bond_credit,Growth weak × HY relief × rate relief,1.0,86
