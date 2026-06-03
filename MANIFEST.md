@@ -74,7 +74,57 @@
   - annual results;
   - equity-curve figures.
 
-### 5. Combined Archive Report
+### 5. Joint Old/Credit Policy v1
+
+- Script: `scripts/run_phase1_joint_old_credit_policy_v1.py`
+- Report: `data/phase1/joint_old_credit_policy_v1/reports/phase1_joint_old_credit_policy_v1_report_en.md`
+- Purpose:
+  - jointly selects the old smooth-score parameters and the bond/credit add-on
+    parameters;
+  - uses the same core variables as the original smooth-score policy plus
+    credit relief and `rate relief x credit stress`;
+  - provides local-best, walk-forward expanding, and walk-forward rolling
+    comparisons.
+- Main tables:
+  - `joint_old_credit_policy_v1_config_grid.csv`
+  - `joint_old_credit_policy_v1_grid_metrics.csv`
+  - `joint_old_credit_policy_v1_local_summary.csv`
+  - `joint_old_credit_policy_v1_oos_summary.csv`
+  - `joint_old_credit_policy_v1_oos_selections.csv`
+
+### 6. Joint Rolling Start-Date Sensitivity v1
+
+- Script: `scripts/run_phase1_rolling_start_date_sensitivity_v1.py`
+- Report: `data/phase1/rolling_start_date_sensitivity_v1/reports/rolling_start_date_sensitivity_v1_report_en.md`
+- Purpose:
+  - tests whether the Joint Old/Credit rolling validation depends on the
+    requested OOS start date or 63-day block phase;
+  - keeps the full Joint Old/Credit parameter grid, 756-day rolling training
+    window, 63-day test block, 10bp cost, and selection objective unchanged;
+  - compares Joint Rolling variants with 50/50 G/D, 100% G, and SPY on a strict
+    common window.
+- Main tables:
+  - `rolling_start_date_sensitivity_v1_start_to_end_summary.csv`
+  - `rolling_start_date_sensitivity_v1_common_window_summary.csv`
+  - `rolling_start_date_sensitivity_v1_selection_stability.csv`
+  - `rolling_start_date_sensitivity_v1_common_window_equity_curves.csv`
+
+### 7. Joint Expanding Start-Date Sensitivity v1
+
+- Script: `scripts/run_phase1_expanding_start_date_sensitivity_v1.py`
+- Report: `data/phase1/expanding_start_date_sensitivity_v1/reports/expanding_start_date_sensitivity_v1_report_en.md`
+- Purpose:
+  - expanding-window counterpart to the rolling start-date test;
+  - keeps the full Joint Old/Credit grid, 63-day test block, 10bp cost, and
+    selection objective unchanged;
+  - varies only the requested OOS start date / 63-day block phase.
+- Main tables:
+  - `expanding_start_date_sensitivity_v1_start_to_end_summary.csv`
+  - `expanding_start_date_sensitivity_v1_common_window_summary.csv`
+  - `expanding_start_date_sensitivity_v1_selection_stability.csv`
+  - `expanding_start_date_sensitivity_v1_common_window_equity_curves.csv`
+
+### 8. Combined Archive Report
 
 - Script: `scripts/build_phase1_2016_full_archive_report.py`
 - Report: `data/phase1/archive_2016_full/reports/phase1_2016_full_combined_report.md`
@@ -97,3 +147,10 @@
 - Bond/credit smooth policy main comparison: `2017-06-28` to `2026-05-15`.
 - Bond/credit OOS validation: `2018-06-28` to `2026-05-15`.
 - Bond/credit post-2022 validation: `2022-01-03` to `2026-05-15`.
+- Joint Old/Credit policy main comparison: `2017-06-28` to `2026-05-15`.
+- Joint Rolling Start-Date Sensitivity:
+  - start-to-end variants begin between `2018-06-28` and `2022-01-03`;
+  - common-window comparison is `2022-01-03` to `2026-05-15`.
+- Joint Expanding Start-Date Sensitivity:
+  - start-to-end variants begin between `2018-06-28` and `2022-01-03`;
+  - common-window comparison is `2022-01-03` to `2026-05-15`.

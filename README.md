@@ -18,6 +18,14 @@ It keeps:
 4. `phase1_bond_credit_smooth_policy_v1`, the deployable policy test including
    the strict incremental branch that keeps the old Best Local score fixed and
    only adds credit relief plus `rate relief x credit stress`.
+5. `phase1_joint_old_credit_policy_v1`, the supporting joint-selection branch
+   that jointly selects the old smooth-score parameters and the bond/credit
+   add-on parameters.
+6. `rolling_start_date_sensitivity_v1` and
+   `expanding_start_date_sensitivity_v1`, the Joint Old/Credit start-date
+   sensitivity tests. These are bond/credit-extension robustness experiments:
+   the full Joint Old/Credit grid is fixed and only the requested OOS start date
+   / 63-day block phase is varied.
 
 It excludes older exploratory branches such as state sorting, predictive
 regression, old OOS validation, old state-action policy, and all ElasticNet
@@ -45,6 +53,9 @@ python scripts/run_phase1_state_framework_v2.py
 python scripts/run_phase1_smooth_score_policy_v1.py
 python scripts/run_phase1_bond_credit_augmented_v1.py
 python scripts/run_phase1_bond_credit_smooth_policy_v1.py
+python scripts/run_phase1_joint_old_credit_policy_v1.py
+python scripts/run_phase1_rolling_start_date_sensitivity_v1.py
+python scripts/run_phase1_expanding_start_date_sensitivity_v1.py
 python scripts/build_phase1_2016_full_archive_report.py
 ```
 
@@ -66,6 +77,14 @@ The bond/credit extension report is:
 
 ```text
 data/phase1/bond_credit_smooth_policy_v1/reports/phase1_bond_credit_smooth_policy_v1_full_report_en.md
+```
+
+The Joint Old/Credit and start-date sensitivity reports are:
+
+```text
+data/phase1/joint_old_credit_policy_v1/reports/phase1_joint_old_credit_policy_v1_report_en.md
+data/phase1/rolling_start_date_sensitivity_v1/reports/rolling_start_date_sensitivity_v1_report_en.md
+data/phase1/expanding_start_date_sensitivity_v1/reports/expanding_start_date_sensitivity_v1_report_en.md
 ```
 
 The Chinese merged report is:
@@ -95,6 +114,9 @@ are research reports, not manuscript or paper files.
 │       ├── smooth_score_policy_v1/
 │       ├── bond_credit_augmented_v1/
 │       ├── bond_credit_smooth_policy_v1/
+│       ├── joint_old_credit_policy_v1/
+│       ├── rolling_start_date_sensitivity_v1/
+│       ├── expanding_start_date_sensitivity_v1/
 │       └── archive_2016_full/
 ├── requirements.txt
 ├── environment.yml

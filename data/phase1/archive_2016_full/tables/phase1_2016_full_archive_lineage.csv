@@ -1,5 +1,10 @@
 ﻿step,script,output_report,sample_note,archive_status
 1_factor_attribution,scripts/run_phase1_factor_attribution.py,data/phase1/factor_attribution/reports/phase1_factor_attribution_report.md,FF5+MOM 回归样本从 2016-12-21 开始。,included
 2_smooth_score_policy_v1,scripts/run_phase1_state_framework_v2.py; scripts/run_phase1_smooth_score_policy_v1.py,data/phase1/smooth_score_policy_v1/reports/phase1_smooth_score_policy_v1_report.md,G/D 源收益从 2016-12-21 开始；包含 126 日 trailing warmup 后的完整 smooth score 结果。,included
+3_bond_credit_augmented_v1,scripts/run_phase1_bond_credit_augmented_v1.py,data/phase1/bond_credit_augmented_v1/reports/phase1_bond_credit_augmented_v1_report.md,加入 AAA/BAA spread 与债券/信用代理变量的诊断门槛测试。,included
+4_bond_credit_smooth_policy_v1,scripts/run_phase1_bond_credit_smooth_policy_v1.py,data/phase1/bond_credit_smooth_policy_v1/reports/phase1_bond_credit_smooth_policy_v1_full_report_en.md,包含替代式 bond/credit score 与旧版 Best Local + credit overlay 的严格增量测试。,included
+5_joint_old_credit_policy_v1,scripts/run_phase1_joint_old_credit_policy_v1.py,data/phase1/joint_old_credit_policy_v1/reports/phase1_joint_old_credit_policy_v1_report_en.md,联合选择旧版 smooth-score 参数与 bond/credit 增量参数。,included
+6_rolling_start_date_sensitivity_v1,scripts/run_phase1_rolling_start_date_sensitivity_v1.py,data/phase1/rolling_start_date_sensitivity_v1/reports/rolling_start_date_sensitivity_v1_report_en.md,Joint Old/Credit rolling 的 Start-Date Sensitivity；固定 full-grid，只改变 OOS 起点和 63 日 block phase。,included
+7_expanding_start_date_sensitivity_v1,scripts/run_phase1_expanding_start_date_sensitivity_v1.py,data/phase1/expanding_start_date_sensitivity_v1/reports/expanding_start_date_sensitivity_v1_report_en.md,Joint Old/Credit expanding 的 Start-Date Sensitivity；固定 full-grid，只改变 OOS 起点和 63 日 block phase。,included
 excluded_old_exploratory_routes,run_phase1_state_sorting.py; run_phase1_predictive_regression.py; run_phase1_oos_validation.py; run_phase1_state_action_policy.py,old exploratory reports,这些属于旧路线或中途实验结果，本归档按用户要求不纳入。,excluded
 excluded_elasticnet,N/A,N/A,ElasticNet 相关实验、表格与结论全部排除。,excluded

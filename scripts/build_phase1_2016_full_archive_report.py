@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Build the 2016-full Phase 1 archive report.
 
-This report intentionally keeps only the two requested research branches:
+This report keeps the retained Phase 1 research chain:
 
 1. factor attribution;
-2. smooth continuous score policy v1.
+2. smooth continuous score policy v1;
+3. bond/credit diagnostic and policy extension;
+4. joint old/credit policy and start-date sensitivity checks.
 
 Older exploratory state-sorting/predictive-regression/OOS/state-action folders
 are not included in the archive report, and ElasticNet is excluded.
@@ -24,6 +26,10 @@ TABLE_DIR = OUT_DIR / "tables"
 
 FACTOR_REPORT = ROOT / "data" / "phase1" / "factor_attribution" / "reports" / "phase1_factor_attribution_report.md"
 SMOOTH_REPORT = ROOT / "data" / "phase1" / "smooth_score_policy_v1" / "reports" / "phase1_smooth_score_policy_v1_report.md"
+BOND_CREDIT_REPORT = ROOT / "data" / "phase1" / "bond_credit_smooth_policy_v1" / "reports" / "phase1_bond_credit_smooth_policy_v1_full_report_en.md"
+JOINT_REPORT = ROOT / "data" / "phase1" / "joint_old_credit_policy_v1" / "reports" / "phase1_joint_old_credit_policy_v1_report_en.md"
+ROLLING_START_REPORT = ROOT / "data" / "phase1" / "rolling_start_date_sensitivity_v1" / "reports" / "rolling_start_date_sensitivity_v1_report_en.md"
+EXPANDING_START_REPORT = ROOT / "data" / "phase1" / "expanding_start_date_sensitivity_v1" / "reports" / "expanding_start_date_sensitivity_v1_report_en.md"
 FACTOR_COVERAGE = ROOT / "data" / "phase1" / "factor_attribution" / "tables" / "factor_attribution_data_coverage.csv"
 SMOOTH_SELECTED = ROOT / "data" / "phase1" / "smooth_score_policy_v1" / "tables" / "smooth_score_policy_v1_common_oos_selected_summary.csv"
 
@@ -32,6 +38,11 @@ ARCHIVE_MODULES = [
     "factor_attribution",
     "state_framework_v2",
     "smooth_score_policy_v1",
+    "bond_credit_augmented_v1",
+    "bond_credit_smooth_policy_v1",
+    "joint_old_credit_policy_v1",
+    "rolling_start_date_sensitivity_v1",
+    "expanding_start_date_sensitivity_v1",
 ]
 
 PACKAGE_EXCLUDED_GENERATED = {
@@ -48,6 +59,21 @@ PLOT_DATE_SOURCES = {
     "smooth_score_policy_v1_supplementary_best_local_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
     "smooth_score_policy_v1_supplementary_extreme_tilt_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_supplementary_tilt_common_oos_equity_curves.csv",
     "smooth_score_policy_v1_vol_matched_static_equity_curves.png": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_vol_matched_static_equity_curves.csv",
+    "bond_credit_smooth_policy_v1_main_equity_curves.png": "data/phase1/bond_credit_smooth_policy_v1/tables/bond_credit_smooth_policy_v1_main_equity_curves.csv",
+    "bond_credit_smooth_policy_v1_oos_validation_equity_curves.png": "data/phase1/bond_credit_smooth_policy_v1/tables/bond_credit_smooth_policy_v1_oos_validation_equity_curves.csv",
+    "bond_credit_smooth_policy_v1_post2022_validation_equity_curves.png": "data/phase1/bond_credit_smooth_policy_v1/tables/bond_credit_smooth_policy_v1_post2022_validation_equity_curves.csv",
+    "bond_credit_smooth_policy_v1_static_comparison_equity_curves.png": "data/phase1/bond_credit_smooth_policy_v1/tables/bond_credit_smooth_policy_v1_static_comparison_equity_curves.csv",
+    "bond_credit_smooth_policy_v1_tilt_equity_curves.png": "data/phase1/bond_credit_smooth_policy_v1/tables/bond_credit_smooth_policy_v1_tilt_equity_curves.csv",
+    "joint_old_credit_policy_v1_local_equity_curves.png": "data/phase1/joint_old_credit_policy_v1/tables/joint_old_credit_policy_v1_local_equity_curves.csv",
+    "joint_old_credit_policy_v1_oos_equity_curves.png": "data/phase1/joint_old_credit_policy_v1/tables/joint_old_credit_policy_v1_oos_equity_curves.csv",
+    "rolling_start_date_cagr_sharpe_bar.png": "data/phase1/rolling_start_date_sensitivity_v1/tables/rolling_start_date_sensitivity_v1_joint_start_to_end_summary.csv",
+    "rolling_start_date_maxdd_turnover_bar.png": "data/phase1/rolling_start_date_sensitivity_v1/tables/rolling_start_date_sensitivity_v1_joint_start_to_end_summary.csv",
+    "rolling_start_date_equity_curves.png": "data/phase1/rolling_start_date_sensitivity_v1/tables/rolling_start_date_sensitivity_v1_equity_curves.csv",
+    "rolling_start_date_vs_benchmarks_common_window.png": "data/phase1/rolling_start_date_sensitivity_v1/tables/rolling_start_date_sensitivity_v1_common_window_equity_curves.csv",
+    "expanding_start_date_cagr_sharpe_bar.png": "data/phase1/expanding_start_date_sensitivity_v1/tables/expanding_start_date_sensitivity_v1_start_to_end_summary.csv",
+    "expanding_start_date_maxdd_turnover_bar.png": "data/phase1/expanding_start_date_sensitivity_v1/tables/expanding_start_date_sensitivity_v1_start_to_end_summary.csv",
+    "expanding_start_date_equity_curves.png": "data/phase1/expanding_start_date_sensitivity_v1/tables/expanding_start_date_sensitivity_v1_equity_curves.csv",
+    "expanding_start_date_vs_benchmarks_common_window.png": "data/phase1/expanding_start_date_sensitivity_v1/tables/expanding_start_date_sensitivity_v1_common_window_equity_curves.csv",
 }
 
 TABLE_DATE_SOURCE_OVERRIDES = {
@@ -58,6 +84,10 @@ TABLE_DATE_SOURCE_OVERRIDES = {
     "state_framework_v2_triplet_summary.csv": "data/phase1/state_framework_v2/inputs/phase1_state_framework_v2_panel.csv",
     "smooth_score_policy_v1_config_grid.csv": None,
     "smooth_score_policy_v1_supplementary_tilt_config_grid.csv": None,
+    "bond_credit_smooth_policy_v1_config_grid.csv": None,
+    "bond_credit_augmented_v1_candidate_interactions.csv": None,
+    "joint_old_credit_policy_v1_config_grid.csv": None,
+    "rolling_start_date_sensitivity_v1_config_grid.csv": None,
     "smooth_score_policy_v1_common_oos_score_diagnostics.csv": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
     "smooth_score_policy_v1_score_diagnostics.csv": "data/phase1/smooth_score_policy_v1/tables/smooth_score_policy_v1_common_oos_equity_curves.csv",
 }
@@ -97,6 +127,41 @@ def write_lineage_table() -> Path:
             "script": "scripts/run_phase1_state_framework_v2.py; scripts/run_phase1_smooth_score_policy_v1.py",
             "output_report": "data/phase1/smooth_score_policy_v1/reports/phase1_smooth_score_policy_v1_report.md",
             "sample_note": "G/D 源收益从 2016-12-21 开始；包含 126 日 trailing warmup 后的完整 smooth score 结果。",
+            "archive_status": "included",
+        },
+        {
+            "step": "3_bond_credit_augmented_v1",
+            "script": "scripts/run_phase1_bond_credit_augmented_v1.py",
+            "output_report": "data/phase1/bond_credit_augmented_v1/reports/phase1_bond_credit_augmented_v1_report.md",
+            "sample_note": "加入 AAA/BAA spread 与债券/信用代理变量的诊断门槛测试。",
+            "archive_status": "included",
+        },
+        {
+            "step": "4_bond_credit_smooth_policy_v1",
+            "script": "scripts/run_phase1_bond_credit_smooth_policy_v1.py",
+            "output_report": "data/phase1/bond_credit_smooth_policy_v1/reports/phase1_bond_credit_smooth_policy_v1_full_report_en.md",
+            "sample_note": "包含替代式 bond/credit score 与旧版 Best Local + credit overlay 的严格增量测试。",
+            "archive_status": "included",
+        },
+        {
+            "step": "5_joint_old_credit_policy_v1",
+            "script": "scripts/run_phase1_joint_old_credit_policy_v1.py",
+            "output_report": "data/phase1/joint_old_credit_policy_v1/reports/phase1_joint_old_credit_policy_v1_report_en.md",
+            "sample_note": "联合选择旧版 smooth-score 参数与 bond/credit 增量参数。",
+            "archive_status": "included",
+        },
+        {
+            "step": "6_rolling_start_date_sensitivity_v1",
+            "script": "scripts/run_phase1_rolling_start_date_sensitivity_v1.py",
+            "output_report": "data/phase1/rolling_start_date_sensitivity_v1/reports/rolling_start_date_sensitivity_v1_report_en.md",
+            "sample_note": "Joint Old/Credit rolling 的 Start-Date Sensitivity；固定 full-grid，只改变 OOS 起点和 63 日 block phase。",
+            "archive_status": "included",
+        },
+        {
+            "step": "7_expanding_start_date_sensitivity_v1",
+            "script": "scripts/run_phase1_expanding_start_date_sensitivity_v1.py",
+            "output_report": "data/phase1/expanding_start_date_sensitivity_v1/reports/expanding_start_date_sensitivity_v1_report_en.md",
+            "sample_note": "Joint Old/Credit expanding 的 Start-Date Sensitivity；固定 full-grid，只改变 OOS 起点和 63 日 block phase。",
             "archive_status": "included",
         },
         {
@@ -243,10 +308,12 @@ def build_report() -> Path:
     lines.append("")
     lines.append("## 0. 归档口径")
     lines.append("")
-    lines.append("本归档版本按最新要求重新整理，只保留两条主线：")
+    lines.append("本归档版本按最新要求重新整理，保留以下主线与后续稳健性扩展：")
     lines.append("")
     lines.append("1. 因子归因：检验 G、D、G-D 的 FF5+MOM 风险暴露。")
     lines.append("2. Smooth Continuous Score Policy v1：保留该报告中的全部步骤，包括主网格、buy-and-hold、vol-matched、supplementary tilt、expanded local grid、walk-forward、fixed holdout、资金曲线和年度表现。")
+    lines.append("3. Bond/Credit 增量扩展：包含信用变量诊断门槛、替代式 bond/credit score、旧版 Best Local + credit overlay 的严格增量测试。")
+    lines.append("4. Joint Old/Credit 与 Start-Date Sensitivity：包含联合选择旧版 smooth-score 与 bond/credit 参数，以及 rolling / expanding 起点敏感性测试。")
     lines.append("")
     lines.append("不纳入旧的 state sorting / predictive regression / oos_validation / state-action 中途路线；不纳入 ElasticNet。")
     lines.append("")
@@ -256,6 +323,8 @@ def build_report() -> Path:
     lines.append("- 因子归因回归样本：`2016-12-21` 到 `2026-03-31`。")
     lines.append("- Smooth score 主比较从 G/D 最早共同可用日期 `2016-12-21` 开始。")
     lines.append("- Smooth score 中的 `gd_trailing_126d` 必须使用 126 个交易日 warmup，因此完整 smooth score 动态策略的实际交易起点自然晚于 2016-12-21。这个 warmup 被保留并解释，不视为中途截样。")
+    lines.append("- Bond/Credit 与 Joint Old/Credit 主比较从 `2017-06-28` 开始，结束于 `2026-05-15`。")
+    lines.append("- Rolling / Expanding Start-Date Sensitivity 的共同窗口为 `2022-01-03` 到 `2026-05-15`。")
     lines.append("")
     lines.append("## 2. 研究链路")
     lines.append("")
@@ -302,6 +371,22 @@ def build_report() -> Path:
     lines.append("### 5.2 Smooth Continuous Score Policy v1")
     lines.append("")
     lines.append(demote_markdown(read_text(SMOOTH_REPORT), levels=3))
+    lines.append("")
+    lines.append("### 5.3 Bond/Credit Smooth Policy v1")
+    lines.append("")
+    lines.append(demote_markdown(read_text(BOND_CREDIT_REPORT), levels=3))
+    lines.append("")
+    lines.append("### 5.4 Joint Old/Credit Policy v1")
+    lines.append("")
+    lines.append(demote_markdown(read_text(JOINT_REPORT), levels=3))
+    lines.append("")
+    lines.append("### 5.5 Joint Rolling Start-Date Sensitivity v1")
+    lines.append("")
+    lines.append(demote_markdown(read_text(ROLLING_START_REPORT), levels=3))
+    lines.append("")
+    lines.append("### 5.6 Joint Expanding Start-Date Sensitivity v1")
+    lines.append("")
+    lines.append(demote_markdown(read_text(EXPANDING_START_REPORT), levels=3))
 
     path = REPORT_DIR / "phase1_2016_full_combined_report.md"
     path.write_text("\n".join(lines), encoding="utf-8")
